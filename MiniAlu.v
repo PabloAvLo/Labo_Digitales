@@ -1,6 +1,7 @@
 
 `timescale 1ns / 1ps
 `include "Defintions.v"
+`include "IMUL.v"
 
 
 module MiniAlu
@@ -19,6 +20,9 @@ wire [3:0]  wOperation;
 reg [15:0]   rResult;
 wire [7:0]  wSourceAddr0,wSourceAddr1,wDestination;
 wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
+wire [7:0] multResult;
+
+IMUL arrayMultiplier (.oResult(multResult), .A(wSourceData0), .B(wSourceData1));
 
 ROM InstructionRom 
 (
@@ -162,6 +166,14 @@ begin
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
 		rResult      <= wSourceData1 - wSourceData0;
+	end
+		//-------------------------------------
+	`IMUL:
+	begin
+		rFFLedEN     <= 1'b0;
+		rBranchTaken <= 1'b0;
+		rWriteEnable <= 1'b1;
+		rResult      <= multResult;
 	end
 		/*------------------------------------- 
 	`SMUL:

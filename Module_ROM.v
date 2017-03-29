@@ -13,8 +13,8 @@ begin
 	case (iAddress)
 
 	0: oInstruction = { `NOP ,24'd4000    };
-	1: oInstruction = { `STO , `R7,16'b100 };
-	2: oInstruction = { `STO ,`R3,16'h1     }; 
+	1: oInstruction = { `STO , `R7,16'b1 };
+	2: oInstruction = { `STO ,`R3,16'b10     }; 
 	3: oInstruction = { `STO, `R4,16'd1000 };
 	4: oInstruction = { `STO, `R5,16'd0     };  //j
 //LOOP2:
@@ -29,7 +29,8 @@ begin
 	11: oInstruction = { `BLE ,`LOOP2,`R5,`R4 };	
 	12: oInstruction = { `NOP ,24'd4000       }; 
 	//13: oInstruction = { `ADD ,`R7,`R7,`R3    };
-	13: oInstruction = { `SUB ,`R7,`R7,`R3    };
+	//13: oInstruction = { `SUB ,`R7,`R7,`R3    };
+	13: oInstruction = { `IMUL ,`R7,`R7,`R3    };
 	14: oInstruction = { `JMP ,  8'd2,16'b0   };
 	
 	//15: oInstruction = { `ADD ,`R1,`R2,`R3    };
