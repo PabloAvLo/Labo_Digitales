@@ -1,7 +1,6 @@
 
 `timescale 1ns / 1ps
 `include "Defintions.v"
-`include "IMUL.v"
 
 
 module MiniAlu
@@ -14,15 +13,14 @@ module MiniAlu
 );
 
 wire [15:0]  wIP,wIP_temp;
-reg         rWriteEnable,rBranchTaken;
+reg         rWriteEnable,rBranchTaken; //, rSign;
 wire [27:0] wInstruction;
 wire [3:0]  wOperation;
 reg [15:0]   rResult;
 wire [7:0]  wSourceAddr0,wSourceAddr1,wDestination;
 wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
-wire [7:0] multResult;
-
-IMUL arrayMultiplier (.oResult(multResult), .A(wSourceData0), .B(wSourceData1));
+//wire [7:0]  wu8_SourceData0, wu8_SourceData1;
+//wire signed [7:0]  ws8_SourceData0, ws8_SourceData1;
 
 ROM InstructionRom 
 (
@@ -102,6 +100,7 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FF_LEDS
 
 assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
 
+//assign rSign = 0;
 
 
 always @ ( * )
@@ -167,22 +166,21 @@ begin
 		rWriteEnable <= 1'b1;
 		rResult      <= wSourceData1 - wSourceData0;
 	end
-		//-------------------------------------
-	`IMUL:
+		//------------------------------------- 
+	/*`SMUL:
 	begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
-		rResult      <= multResult;
-	end
-		/*------------------------------------- 
-	`SMUL:
-	begin
-		rFFLedEN     <= 1'b0;
-		rBranchTaken <= 1'b0;
-		rWriteEnable <= 1'b1;
-		rResult      <= wSourceData1 * wSourceData0;
-	end*/
+/*		
+		if(rSign == 1)
+		rResult      <= ws8_SourceData0 * ws8_SourceData1;
+		
+		else 
+		rResult      <= wSourceData0 * wSourceData1;
+		
+		
+	end  */
 	//-------------------------------------
 	default:
 	begin
