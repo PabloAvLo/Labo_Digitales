@@ -17,7 +17,7 @@ begin
 	2: oInstruction = { `STO ,`R3,16'h1     }; 
 	3: oInstruction = { `STO, `R4,16'd1000 };
 	4: oInstruction = { `STO, `R5,16'd0     };  //j
-	5: oInstruction = { `STO, `R6,-16'd2     };  //j
+	5: oInstruction = { `STO, `R6,16'd2     };  //j
 	
 //LOOP2:
 	6: oInstruction = { `LED ,8'b0,`R7,8'b0 };
@@ -33,6 +33,7 @@ begin
 	//14: oInstruction = { `ADD ,`R7,`R7,`R3    };
 	//14: oInstruction = { `SUB ,`R7,`R7,`R3    };
 	//14: oInstruction = { `IMUL,`R7,`R7,`R6  }; //EJERCICIO 2.2
+	14: oInstruction = { `IMUL2,`R7,`R7,`R6  }; //EJERCICIO 2.3
 	14: oInstruction = { `SMUL,`R7,`R7,`R6  };
 	15: oInstruction = { `JMP ,  8'd2,16'b0   };
 

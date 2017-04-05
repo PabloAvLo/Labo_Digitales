@@ -18,7 +18,7 @@ reg         rWriteEnable,rBranchTaken; //, rSign;
 wire [27:0] wInstruction;
 wire [3:0]  wOperation;
 reg [32:0]   rResult; // reg [15:0]   rResult;
-wire [15:0]	wArr_mul;
+wire [15:0]	wArr_mul, wArr_mul2;
 wire [7:0]  wSourceAddr0,wSourceAddr1,wDestination;
 wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
 
@@ -114,6 +114,8 @@ assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
 
 IMUL arr_mult(.oResult(wArr_mul), .A(wSourceData1), .B(wSourceData0));
 
+IMUL2 mux_mult(.result(wArr_mul2), .A(wSourceData1), .B(wSourceData0));
+
 
 always @ ( * )
 begin
@@ -184,8 +186,14 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
-		//rResult      <= wSourceData1 - wSourceData0;
-		//IMUL arr_mult(.oResult(rResult), .A(wSourceData1), .B(wSourceData0));
+		rResult <= wArr_mul;
+	end
+		//------------------------------------- 
+	`IMUL2:
+	begin
+		rFFLedEN     <= 1'b0;
+		rBranchTaken <= 1'b0;
+		rWriteEnable <= 1'b1;
 		rResult <= wArr_mul;
 	end
 		//-------------------------------------  
