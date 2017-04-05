@@ -17,12 +17,18 @@ wire [15:0]  wIP,wIP_temp;
 reg         rWriteEnable,rBranchTaken; //, rSign;
 wire [27:0] wInstruction;
 wire [3:0]  wOperation;
-reg [15:0]   rResult;
-wire [15:0]	wArr_mul;
+reg [32:0]   rResult; // reg [15:0]   rResult;
+wire [15:0]	wArr_mul, wArr_mul2;
 wire [7:0]  wSourceAddr0,wSourceAddr1,wDestination;
 wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
-//wire [7:0]  wu8_SourceData0, wu8_SourceData1;
-//wire signed [7:0]  ws8_SourceData0, ws8_SourceData1;
+
+//EJERCICIO 2.1
+wire signed [16:0] wSourceData0_signed,wSourceData1_signed;
+reg [32:0] rResult_signed;
+
+assign wSourceData0_signed = wSourceData0;
+assign wSourceData1_signed = wSourceData1;
+//
 
 ROM InstructionRom 
 (
@@ -108,6 +114,8 @@ assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
 
 IMUL arr_mult(.oResult(wArr_mul), .A(wSourceData1), .B(wSourceData0));
 
+IMUL2 mux_mult(.result(wArr_mul2), .A(wSourceData1), .B(wSourceData0));
+
 
 always @ ( * )
 begin
@@ -178,25 +186,26 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
-		//rResult      <= wSourceData1 - wSourceData0;
-		//IMUL arr_mult(.oResult(rResult), .A(wSourceData1), .B(wSourceData0));
 		rResult <= wArr_mul;
 	end
-		//-------------------------------------  
-	/*`SMUL:
+		//------------------------------------- 
+	`IMUL2:
 	begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
-/*		
-		if(rSign == 1)
-		rResult      <= ws8_SourceData0 * ws8_SourceData1;
+		rResult <= wArr_mul;
+	end
+		//-------------------------------------  
+	`SMUL:
+		begin
+			rFFLedEN     <= 1'b0;
+			rBranchTaken <= 1'b0;
+			rWriteEnable <= 1'b1;
+
+			rResult <= wSourceData0_signed * wSourceData1_signed;
 		
-		else 
-		rResult      <= wSourceData0 * wSourceData1;
-		
-		
-	end  */
+		end  
 	//-------------------------------------
 	default:
 	begin

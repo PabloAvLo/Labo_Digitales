@@ -112,3 +112,46 @@ assign {Co, R} = A + B + Ci;
 endmodule
 
 //----------------------------------------------------------------------
+
+module mux_4x1 (Shifted_A, Q, A, B);
+
+input wire [6:0] A; 
+input wire [1:0] B;
+
+output reg [5:0] Shifted_A; //revisar el tamano
+output reg [7:0] Q;
+
+always @(*) begin
+	case(B)
+		0: Q <= 0;
+		1: Q <= A;
+		2: Q <= A << 1'b1;
+		3: Q <= (A << 1'b1) + A;
+
+		default: Q <= 0;
+	endcase
+
+	Shifted_A <= A << 1'b1;
+end
+
+endmodule
+
+//----------------------------------------------------------------------
+
+module IMUL2 (result, A, B);
+	output reg [7:0] result;
+	input wire [3:0]A;
+	input wire [3:0]B;
+
+	wire [5:0] shifted_4A;
+	wire [7:0] oMux1;
+	wire [7:0] oMux2;
+
+	mux_4x1 mux1(.Shifted_A(shifted_4A), .Q(oMux1), .A(A), .B(B[1:0]));
+	mux_4x1 mux2(.Shifted_A(), .Q(oMux2), .A(shifted_4A), .B(B[3:2]));
+
+	always @(*)begin 
+		result = oMux1 + oMux2;
+	end
+
+endmodule
