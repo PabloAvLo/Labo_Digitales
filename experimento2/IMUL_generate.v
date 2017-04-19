@@ -8,7 +8,7 @@ input wire [15:0] A;
 input wire [15:0] B;
 output [31:0] oResult;
 	 // i    j
-wire [NB-3:0][NB-6:0] wCi, wR;
+wire [NB-3:0] wCi, wR [0:NB-6];
 wire [NB-6:0] wCo;
 
 
