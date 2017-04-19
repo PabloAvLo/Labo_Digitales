@@ -50,14 +50,13 @@ for(i = 0; i< NB-3; i = i+1) begin // begin 1
 												 		else
 															full_adder adder09(.A(A[i-j] & B[j+1]), .B(wR[i][j-1]), .Ci(wCi[i-1][j]), .R(wR[i][j]), .Co(wCi[i+1][j]));
 													end // end 16
-											end // end 14
-										end // end 12
-								end // end 10
-						end // end 8
-					end // end 6
-				end // end 4
-	    end // end 2
-	end // end 1
-
+											  end // end 14
+									    end // end 12
+						           end // end 10
+					          end // end 8
+				         end // end 6
+			        end // end 4
+	           end // end 2
+	      end // end 1
 endgenerate
 endmodule
