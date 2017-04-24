@@ -1,8 +1,5 @@
-
 `timescale 1ns / 1ps
-`include "Defintions.v"
-
-
+`include "Defintions.v"`
 
 module MiniAlu
 (
@@ -10,7 +7,7 @@ module MiniAlu
  input wire Reset,
  output wire [7:0] oLed
 
- 
+
 );
 
 wire [15:0]  wIP,wIP_temp;
@@ -19,6 +16,7 @@ wire [27:0] wInstruction;
 wire [3:0]  wOperation;
 reg [32:0]   rResult; // reg [15:0]   rResult;
 wire [15:0]	wArr_mul, wArr_mul2;
+wire [31:0] wArr_mulgen;
 wire [7:0]  wSourceAddr0,wSourceAddr1,wDestination;
 wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
 
@@ -30,7 +28,7 @@ assign wSourceData0_signed = wSourceData0;
 assign wSourceData1_signed = wSourceData1;
 //
 
-ROM InstructionRom 
+ROM InstructionRom
 (
 	.iAddress(     wIP          ),
 	.oInstruction( wInstruction )
@@ -51,7 +49,7 @@ RAM_DUAL_READ_PORT DataRam
 assign wIPInitialValue = (Reset) ? 8'b0 : wDestination;
 UPCOUNTER_POSEDGE IP
 (
-.Clock(   Clock                ), 
+.Clock(   Clock                ),
 .Reset(   Reset | rBranchTaken ),
 .Initial( wIPInitialValue + 1  ),
 .Enable(  1'b1                 ),
@@ -59,7 +57,7 @@ UPCOUNTER_POSEDGE IP
 );
 assign wIP = (rBranchTaken) ? wIPInitialValue : wIP_temp;
 
-FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD1 
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD1
 (
 	.Clock(Clock),
 	.Reset(Reset),
@@ -116,6 +114,8 @@ IMUL arr_mult(.oResult(wArr_mul), .A(wSourceData1), .B(wSourceData0));
 
 IMUL2 mux_mult(.result(wArr_mul2), .A(wSourceData1), .B(wSourceData0));
 
+IMUL_generate mulgen(.result(wArr_mulgen), .A(wSourceData1), .B(wSourceData0));
+
 
 always @ ( * )
 begin
@@ -154,9 +154,9 @@ begin
 			rBranchTaken <= 1'b1;
 		else
 			rBranchTaken <= 1'b0;
-		
+
 	end
-	//-------------------------------------	
+	//-------------------------------------
 	`JMP:
 	begin
 		rFFLedEN     <= 1'b0;
@@ -164,7 +164,7 @@ begin
 		rResult      <= 0;
 		rBranchTaken <= 1'b1;
 	end
-	//-------------------------------------	
+	//-------------------------------------
 	`LED:
 	begin
 		rFFLedEN     <= 1'b1;
@@ -188,7 +188,7 @@ begin
 		rWriteEnable <= 1'b1;
 		rResult <= wArr_mul;
 	end
-		//------------------------------------- 
+		//-------------------------------------
 	`IMUL2:
 	begin
 		rFFLedEN     <= 1'b0;
@@ -196,7 +196,7 @@ begin
 		rWriteEnable <= 1'b1;
 		rResult <= wArr_mul;
 	end
-		//-------------------------------------  
+		//-------------------------------------
 	`SMUL:
 		begin
 			rFFLedEN     <= 1'b0;
@@ -204,8 +204,18 @@ begin
 			rWriteEnable <= 1'b1;
 
 			rResult <= wSourceData0_signed * wSourceData1_signed;
-		
-		end  
+
+		end
+	//-------------------------------------
+	`IMULGEN:
+		begin
+			rFFLedEN     <= 1'b0;
+			rBranchTaken <= 1'b0;
+			rWriteEnable <= 1'b1;
+
+			rResult <= wArr_mulgen;
+
+		end
 	//-------------------------------------
 	default:
 	begin
@@ -213,9 +223,9 @@ begin
 		rWriteEnable <= 1'b0;
 		rResult      <= 0;
 		rBranchTaken <= 1'b0;
-	end	
-	//-------------------------------------	
-	endcase	
+	end
+	//-------------------------------------
+	endcase
 end
 
 
