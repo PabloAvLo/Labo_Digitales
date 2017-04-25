@@ -33,9 +33,9 @@ for(i = 0; i< 27; i = i+1) begin// Cambiar i < 27 para 32 bits o i<
 	end else begin
  			for(j = 0; j < 4; j = j+1) begin
 				if(j == 0) assign oResult[i+1] = wResult[i][0];
-				if(j == 3)           full_adder fai3  (.A(wCarry[i-1][j+1]),.B(A[j]&B[i+1]),       .Ci(wCarry[i][j]), .R(wResult[i][j]), .Co(wCarry[i][j+1]));// Adders de la ultima columna
-					else   if(i < 15)full_adder faij  (.A(A[j]&B[i+1])     ,.B(wResult[i-1][j+1]), .Ci(wCarry[i][j]), .R(wResult[i][j]), .Co(wCarry[i][j+1])); // Adders de en medio
-							else     full_adder faij2 (.A(1'b0)            ,.B(wResult[i-1][j+1]), .Ci(wCarry[i][j]), .R(wResult[i][j]), .Co(wCarry[i][j+1])); // Adders de en medio
+				if(j == 3) full_adder fai3 (.A(wCarry[i-1][j+1]),.B(A[j]&B[i+1]),       .Ci(wCarry[i][j]), .R(wResult[i][j]), .Co(wCarry[i][j+1]));// Adders de la ultima columna
+					else   if(i < 15)full_adder faij (.A(A[j]&B[i+1])     ,.B(wResult[i-1][j+1]), .Ci(wCarry[i][j]), .R(wResult[i][j]), .Co(wCarry[i][j+1])); // Adders de en medio
+							else full_adder faij2 (.A(1'b0)     ,.B(wResult[i-1][j+1]), .Ci(wCarry[i][j]), .R(wResult[i][j]), .Co(wCarry[i][j+1])); // Adders de en medio
 			end // end for j
 	end // end else i == 0
 end // end for i
