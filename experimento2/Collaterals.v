@@ -49,12 +49,14 @@ endmodule
 
 
 //----------------------------------------------------------------------
-
+//Implementacion del modulo IMUL basandonos en un array multiplier
 module IMUL (oResult, A, B);
 	input wire [3:0] A;
 	input wire [3:0] B;
-	output [7:0] oResult;
-	wire Ci_00, Ci_01, Ci_02, Ci_03, Ci_10, Ci_11, Ci_12, Ci_13, Ci_20, Ci_21, Ci_22;
+	output [7:0] oResult; //la salida no puede ser mayor a 8 bits ya que las entradas son de 4
+
+	//cables para los acarreos 
+	wire Ci_00, Ci_01, Ci_02, Ci_03, Ci_10, Ci_11, Ci_12, Ci_13, Ci_20, Ci_21, Ci_22; 
 	wire r01, r02, r03, r11, r12, r13; 
 
 
@@ -101,7 +103,9 @@ module IMUL (oResult, A, B);
 endmodule
 
 //----------------------------------------------------------------------
-
+//Esta es la implementacion de un sumador completo
+//va a ser de suma importancia para la implementacion de las operaciones IMUL
+//y la operacion subsecuente utilizando genvar
 module full_adder (A, B, Ci, R, Co);
 
 input wire A, B, Ci; 
