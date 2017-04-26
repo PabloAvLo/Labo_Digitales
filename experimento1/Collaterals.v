@@ -8,7 +8,6 @@ input wire Enable,
 output reg [SIZE-1:0] Q
 );
 
-
   always @(posedge Clock )
   begin
       if (Reset)
@@ -32,7 +31,6 @@ module FFD_POSEDGE_SYNCRONOUS_RESET # ( parameter SIZE=8 )
 	output reg [SIZE-1:0]	Q
 );
 	
-
 always @ (posedge Clock) 
 begin
 	if ( Reset )

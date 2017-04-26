@@ -2,25 +2,21 @@
 `timescale 1ns / 1ps
 `include "Defintions.v"
 
-
 module MiniAlu
 (
  input wire Clock,
  input wire Reset,
  output wire [7:0] oLed
-
  
 );
 
 wire [15:0]  wIP,wIP_temp;
-reg         rWriteEnable,rBranchTaken; //, rSign;
+reg         rWriteEnable,rBranchTaken; 
 wire [27:0] wInstruction;
 wire [3:0]  wOperation;
 reg [15:0]   rResult;
 wire [7:0]  wSourceAddr0,wSourceAddr1,wDestination;
 wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
-//wire [7:0]  wu8_SourceData0, wu8_SourceData1;
-//wire signed [7:0]  ws8_SourceData0, ws8_SourceData1;
 
 ROM InstructionRom 
 (
@@ -28,7 +24,7 @@ ROM InstructionRom
 	.oInstruction( wInstruction )
 );
 
-RAM_DUAL_READ_PORT DataRam
+RAM_DUAL_READ_PORT #(16,4,8) DataRam // Se reduce el numero de bits para ADDR_WIDTH pues no se utilizan todos
 (
 	.Clock(         Clock        ),
 	.iWriteEnable(  rWriteEnable ),
@@ -51,7 +47,7 @@ UPCOUNTER_POSEDGE IP
 );
 assign wIP = (rBranchTaken) ? wIPInitialValue : wIP_temp;
 
-FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD1 
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 3 ) FFD1 // Reduce el numero de bits a utilizar por el FFD ya que generan Warnings
 (
 	.Clock(Clock),
 	.Reset(Reset),
@@ -69,7 +65,7 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD2
 	.Q(wSourceAddr0)
 );
 
-FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD3
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 6 ) FFD3 // Reduce el numero de bits a utilizar por el FFD ya que generan Warnings
 (
 	.Clock(Clock),
 	.Reset(Reset),
@@ -78,7 +74,7 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD3
 	.Q(wSourceAddr1)
 );
 
-FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD4
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 4 ) FFD4 // Reduce el numero de bits a utilizar por el FFD ya que generan Warnings
 (
 	.Clock(Clock),
 	.Reset(Reset),
@@ -99,9 +95,6 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FF_LEDS
 );
 
 assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
-
-//assign rSign = 0;
-
 
 always @ ( * )
 begin
@@ -159,28 +152,15 @@ begin
 		rBranchTaken <= 1'b0;
 	end
 		//-------------------------------------
+		//Ejercicio 1.2: Definicion
+		//-------------------------------------
 	`SUB:
 	begin
-		rFFLedEN     <= 1'b0;
-		rBranchTaken <= 1'b0;
-		rWriteEnable <= 1'b1;
-		rResult      <= wSourceData1 - wSourceData0;
+		rFFLedEN     <= 1'b0; // No enciende LEDS
+		rBranchTaken <= 1'b0;  // No salta
+		rWriteEnable <= 1'b1;  // Si escribe a memoria
+		rResult      <= wSourceData1 - wSourceData0; // Resta dos registros y lo guarda en un tercero
 	end
-		//------------------------------------- 
-	/*`SMUL:
-	begin
-		rFFLedEN     <= 1'b0;
-		rBranchTaken <= 1'b0;
-		rWriteEnable <= 1'b1;
-/*		
-		if(rSign == 1)
-		rResult      <= ws8_SourceData0 * ws8_SourceData1;
-		
-		else 
-		rResult      <= wSourceData0 * wSourceData1;
-		
-		
-	end  */
 	//-------------------------------------
 	default:
 	begin
@@ -192,6 +172,5 @@ begin
 	//-------------------------------------	
 	endcase	
 end
-
 
 endmodule
