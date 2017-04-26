@@ -112,14 +112,13 @@ assign {Co, R} = A + B + Ci;
 endmodule
 
 //----------------------------------------------------------------------
+module mux_4x1 #(parameter SIZE = 4) (Shifted_A, Q, A, B);
 
-module mux_4x1 (Shifted_A, Q, A, B);
-
-input wire [6:0] A; 
+input wire [SIZE - 1:0] A; //input wire [6:0] A; 
 input wire [1:0] B;
 
-output reg [5:0] Shifted_A; //revisar el tamano
-output reg [7:0] Q;
+output reg [SIZE:0] Shifted_A; //output reg [5:0] Shifted_A; 
+output reg [SIZE:0] Q;
 
 always @(*) begin
 	case(B)
@@ -131,7 +130,7 @@ always @(*) begin
 		default: Q <= 0;
 	endcase
 
-	Shifted_A <= A << 1'b1;
+	Shifted_A <= A << 2'b10;
 end
 
 endmodule
@@ -139,19 +138,38 @@ endmodule
 //----------------------------------------------------------------------
 
 module IMUL2 (result, A, B);
-	output reg [7:0] result;
-	input wire [3:0]A;
-	input wire [3:0]B;
+	output reg [31:0] result;
+	input wire [15:0] A;
+	input wire [15:0] B;
 
-	wire [5:0] shifted_4A;
-	wire [7:0] oMux1;
-	wire [7:0] oMux2;
+	wire [4:0] shifted_4A;
+	wire [6:0] shifted_6A;
+	wire [8:0] shifted_8A;
+	wire [10:0] shifted_10A;
+	wire [12:0] shifted_12A;
+	wire [14:0] shifted_14A;
+	wire [16:0] shifted_16A;
 
-	mux_4x1 mux1(.Shifted_A(shifted_4A), .Q(oMux1), .A(A), .B(B[1:0]));
-	mux_4x1 mux2(.Shifted_A(), .Q(oMux2), .A(shifted_4A), .B(B[3:2]));
+	wire [4:0] oMux1;
+	wire [6:0] oMux2;
+	wire [8:0] oMux3;
+	wire [10:0] oMux4;
+	wire [12:0] oMux5;
+	wire [14:0] oMux6;
+	wire [16:0] oMux7;
+	wire [18:0] oMux8;
+
+	mux_4x1 # (4) mux1(.Shifted_A(shifted_4A), .Q(oMux1), .A(A), .B(B[1:0]));
+	mux_4x1 # (6) mux2(.Shifted_A(shifted_6A), .Q(oMux2), .A(shifted_4A), .B(B[3:2]));
+	mux_4x1 # (8) mux3(.Shifted_A(shifted_8A), .Q(oMux3), .A(shifted_6A), .B(B[5:4]));
+	mux_4x1 # (10) mux4(.Shifted_A(shifted_10A), .Q(oMux4), .A(shifted_8A), .B(B[7:6]));
+	mux_4x1 # (12) mux5(.Shifted_A(shifted_12A), .Q(oMux5), .A(shifted_10A), .B(B[9:8]));
+	mux_4x1 # (14) mux6(.Shifted_A(shifted_14A), .Q(oMux6), .A(shifted_12A), .B(B[11:10]));
+	mux_4x1 # (16) mux7(.Shifted_A(shifted_16A), .Q(oMux7), .A(shifted_14A), .B(B[13:12]));
+	mux_4x1 # (18) mux8(.Q(oMux8), .A(shifted_16A), .B(B[15:14]));
 
 	always @(*)begin 
-		result = oMux1 + oMux2;
+		result = oMux1 + oMux2 + oMux3 + oMux4 + oMux5 + oMux6 + oMux7 + oMux8;
 	end
 
 endmodule

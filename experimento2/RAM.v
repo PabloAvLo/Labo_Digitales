@@ -20,7 +20,6 @@ begin
 		if (iWriteEnable) 
 			Ram[iWriteAddress] <= iDataIn; 
 			
-	
 			oDataOut0 <= Ram[iReadAddress0]; 
 			oDataOut1 <= Ram[iReadAddress1]; 
 		

@@ -1,34 +1,28 @@
-
 `timescale 1ns / 1ps
 `include "Defintions.v"
-
-
 
 module MiniAlu
 (
  input wire Clock,
  input wire Reset,
  output wire [7:0] oLed
-
- 
 );
 
 wire [15:0]  wIP,wIP_temp;
-reg         rWriteEnable,rBranchTaken; //, rSign;
+reg         rWriteEnable,rBranchTaken;
 wire [27:0] wInstruction;
 wire [3:0]  wOperation;
 reg [32:0]   rResult; // reg [15:0]   rResult;
-wire [15:0]	wArr_mul, wArr_mul2;
+wire [15:0]	wArr_mul;
+wire [31:0] wArr_mul2;
 wire [7:0]  wSourceAddr0,wSourceAddr1,wDestination;
 wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
 
 //EJERCICIO 2.1
 wire signed [16:0] wSourceData0_signed,wSourceData1_signed;
-reg [32:0] rResult_signed;
 
 assign wSourceData0_signed = wSourceData0;
 assign wSourceData1_signed = wSourceData1;
-//
 
 ROM InstructionRom 
 (
@@ -36,7 +30,7 @@ ROM InstructionRom
 	.oInstruction( wInstruction )
 );
 
-RAM_DUAL_READ_PORT DataRam
+RAM_DUAL_READ_PORT DataRam 
 (
 	.Clock(         Clock        ),
 	.iWriteEnable(  rWriteEnable ),
@@ -59,7 +53,7 @@ UPCOUNTER_POSEDGE IP
 );
 assign wIP = (rBranchTaken) ? wIPInitialValue : wIP_temp;
 
-FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD1 
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD1
 (
 	.Clock(Clock),
 	.Reset(Reset),
@@ -109,13 +103,9 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FF_LEDS
 
 assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
 
-//assign rSign = 0;
-
-
 IMUL arr_mult(.oResult(wArr_mul), .A(wSourceData1), .B(wSourceData0));
 
-IMUL2 mux_mult(.result(wArr_mul2), .A(wSourceData1), .B(wSourceData0));
-
+IMUL2 mux_mult(.result(wArr_mul2), .A(wSourceData0), .B(wSourceData1));
 
 always @ ( * )
 begin
@@ -173,13 +163,28 @@ begin
 		rBranchTaken <= 1'b0;
 	end
 		//-------------------------------------
+		//Ejercicio 1.2: Definicion
+		//-------------------------------------
 	`SUB:
+	begin
+		rFFLedEN     <= 1'b0; // No enciende LEDS
+		rBranchTaken <= 1'b0;  // No salta
+		rWriteEnable <= 1'b1;  // Si escribe a memoria
+		rResult      <= wSourceData1 - wSourceData0; // Resta dos registros y lo guarda en un tercero
+	end
+		//-------------------------------------
+		//Ejercicio 2.1: Definicion
+		//-------------------------------------
+	`SMUL:
 	begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
-		rResult      <= wSourceData1 - wSourceData0;
-	end
+
+		rResult <= wSourceData0_signed * wSourceData1_signed;		
+	end  
+		//-------------------------------------
+		//Ejercicio 2.3: Definicion
 		//-------------------------------------
 	`IMUL:
 	begin
@@ -188,25 +193,17 @@ begin
 		rWriteEnable <= 1'b1;
 		rResult <= wArr_mul;
 	end
-		//------------------------------------- 
+		//-------------------------------------
+		//Ejercicio 2.4: Definicion
+		//-------------------------------------
 	`IMUL2:
 	begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
-		rResult <= wArr_mul;
+		rResult <= wArr_mul2;
 	end
 		//-------------------------------------  
-	`SMUL:
-		begin
-			rFFLedEN     <= 1'b0;
-			rBranchTaken <= 1'b0;
-			rWriteEnable <= 1'b1;
-
-			rResult <= wSourceData0_signed * wSourceData1_signed;
-		
-		end  
-	//-------------------------------------
 	default:
 	begin
 		rFFLedEN     <= 1'b1;
@@ -217,6 +214,5 @@ begin
 	//-------------------------------------	
 	endcase	
 end
-
 
 endmodule
