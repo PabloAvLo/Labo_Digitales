@@ -186,7 +186,7 @@ begin
 		rResult <= wSourceData0_signed * wSourceData1_signed; // Cables de datos, con signo, de SMUL	
 	end  
 		//-------------------------------------
-		//Ejercicio 2.3: Definicion
+		//Ejercicio 2.2: Definicion
 		//-------------------------------------
 	`IMUL:
 	begin
