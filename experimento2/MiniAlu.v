@@ -12,17 +12,18 @@ wire [15:0]  wIP,wIP_temp;
 reg         rWriteEnable,rBranchTaken;
 wire [27:0] wInstruction;
 wire [3:0]  wOperation;
-reg [32:0]   rResult; // reg [15:0]   rResult;
-wire [15:0]	wArr_mul;
-wire [31:0] wArr_mul2;
+// reg [15:0]   rResult;
+reg [32:0]   rResult;  // Registro de resultado para SMUL (+1 bit para signo)
+wire [15:0]	wArr_mul; // Registro de resultado de IMUL
+wire [31:0] wArr_mul2; // Registro de resultado de IMUL2
 wire [7:0]  wSourceAddr0,wSourceAddr1,wDestination;
 wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
 
-//EJERCICIO 2.1
+//EJERCICIO 2.1 : Cables con signo para SMUL (+1 bit y signed)
 wire signed [16:0] wSourceData0_signed,wSourceData1_signed;
 
-assign wSourceData0_signed = wSourceData0;
-assign wSourceData1_signed = wSourceData1;
+assign wSourceData0_signed = wSourceData0; // Para pasara adecuadamente los datos a SMUL y 
+assign wSourceData1_signed = wSourceData1; // analizar datos con y sin signo.
 
 ROM InstructionRom 
 (
@@ -103,8 +104,10 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FF_LEDS
 
 assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
 
-IMUL arr_mult(.oResult(wArr_mul), .A(wSourceData1), .B(wSourceData0));
+// Instancia de IMUL
+IMUL arr_mult(.oResult(wArr_mul), .A(wSourceData1), .B(wSourceData0)); 
 
+// Instancia de IMUL2
 IMUL2 mux_mult(.result(wArr_mul2), .A(wSourceData0), .B(wSourceData1));
 
 always @ ( * )
@@ -180,8 +183,7 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
-
-		rResult <= wSourceData0_signed * wSourceData1_signed;		
+		rResult <= wSourceData0_signed * wSourceData1_signed; // Cables de datos, con signo, de SMUL	
 	end  
 		//-------------------------------------
 		//Ejercicio 2.3: Definicion
@@ -191,7 +193,7 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
-		rResult <= wArr_mul;
+		rResult <= wArr_mul; // Cable conectado a la salida de la instancia de  IMUL
 	end
 		//-------------------------------------
 		//Ejercicio 2.4: Definicion
@@ -201,7 +203,7 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
-		rResult <= wArr_mul2;
+		rResult <= wArr_mul2; // Cable conectado a la salida de la instancia de  IMUL2
 	end
 		//-------------------------------------  
 	default:

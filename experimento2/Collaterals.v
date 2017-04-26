@@ -114,36 +114,36 @@ endmodule
 //----------------------------------------------------------------------
 module mux_4x1 #(parameter SIZE = 4) (Shifted_A, Q, A, B);
 
-input wire [SIZE - 1:0] A; //input wire [6:0] A; 
+input wire [SIZE - 1:0] A; //input wire [3:0] A; 
 input wire [1:0] B;
 
-output reg [SIZE:0] Shifted_A; //output reg [5:0] Shifted_A; 
-output reg [SIZE:0] Q;
+output reg [SIZE:0] Shifted_A; //output reg [4:0] Shifted_A; 
+output reg [SIZE:0] Q; // Q y Shifted_A necesitan 1 bit mas que A por la suma y el desplazamiento respectivamente. 
 
 always @(*) begin
 	case(B)
-		0: Q <= 0;
-		1: Q <= A;
-		2: Q <= A << 1'b1;
-		3: Q <= (A << 1'b1) + A;
+		0: Q <= 0; 						// A *0
+		1: Q <= A; 						// A *1
+		2: Q <= A << 1'b1;			// A *2
+		3: Q <= (A << 1'b1) + A;	// A *3
 
-		default: Q <= 0;
+		default: Q <= 0;				// A *0
 	endcase
 
-	Shifted_A <= A << 2'b10;
-end
+	Shifted_A <= A << 2'b10;	// Desplazamiento adicional para adecuar la entrada 
+end										// al siguiente mux_4x1 segun el algoritmo.
 
 endmodule
 
 //----------------------------------------------------------------------
 
 module IMUL2 (result, A, B);
-	output reg [31:0] result;
+	output reg [31:0] result; // Resultado de 32bits ya que se multiplican 2 numeros de 16bits.
 	input wire [15:0] A;
 	input wire [15:0] B;
 
-	wire [4:0] shifted_4A;
-	wire [6:0] shifted_6A;
+	wire [4:0] shifted_4A; // Los tamanos van aumentando debido a que A se desplaza 2 veces
+	wire [6:0] shifted_6A; // hacia la izquierda por cada etapa de mux.
 	wire [8:0] shifted_8A;
 	wire [10:0] shifted_10A;
 	wire [12:0] shifted_12A;
@@ -168,6 +168,7 @@ module IMUL2 (result, A, B);
 	mux_4x1 # (16) mux7(.Shifted_A(shifted_16A), .Q(oMux7), .A(shifted_14A), .B(B[13:12]));
 	mux_4x1 # (18) mux8(.Q(oMux8), .A(shifted_16A), .B(B[15:14]));
 
+	// Se suman los resultados de todos los muxes segun el algoritmo.	
 	always @(*)begin 
 		result = oMux1 + oMux2 + oMux3 + oMux4 + oMux5 + oMux6 + oMux7 + oMux8;
 	end
