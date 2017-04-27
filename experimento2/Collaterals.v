@@ -116,13 +116,13 @@ assign {Co, R} = A + B + Ci;
 endmodule
 
 //----------------------------------------------------------------------
-module mux_4x1 #(parameter SIZE = 4) (Shifted_A, Q, A, B);
+module mux_4x1 #(parameter SIZE = 16) (Shifted_A, Q, A, B);
 
-input wire [SIZE - 1:0] A; //input wire [3:0] A; 
+input wire [SIZE - 1:0] A; //input wire [15:0] A; 
 input wire [1:0] B;
 
-output reg [SIZE:0] Shifted_A; //output reg [4:0] Shifted_A; 
-output reg [SIZE:0] Q; // Q y Shifted_A necesitan 1 bit mas que A por la suma y el desplazamiento respectivamente. 
+output reg [SIZE+1:0] Shifted_A; //output reg [17:0] Shifted_A; 
+output reg [SIZE+1:0] Q; // Q y Shifted_A necesitan 1 bit mas que A por la suma y el desplazamiento respectivamente. 
 
 always @(*) begin
 	case(B)
@@ -146,31 +146,31 @@ module IMUL2 (result, A, B);
 	input wire [15:0] A;
 	input wire [15:0] B;
 
-	wire [4:0] shifted_4A; // Los tamanos van aumentando debido a que A se desplaza 2 veces
-	wire [6:0] shifted_6A; // hacia la izquierda por cada etapa de mux.
-	wire [8:0] shifted_8A;
-	wire [10:0] shifted_10A;
-	wire [12:0] shifted_12A;
-	wire [14:0] shifted_14A;
-	wire [16:0] shifted_16A;
+	wire [17:0] shifted_17A; // Los tamanos van aumentando debido a que A se desplaza 2 veces
+	wire [19:0] shifted_19A; // hacia la izquierda por cada etapa de mux.
+	wire [21:0] shifted_21A;
+	wire [23:0] shifted_23A;
+	wire [25:0] shifted_25A;
+	wire [27:0] shifted_27A;
+	wire [29:0] shifted_29A;
 
-	wire [4:0] oMux1;
-	wire [6:0] oMux2;
-	wire [8:0] oMux3;
-	wire [10:0] oMux4;
-	wire [12:0] oMux5;
-	wire [14:0] oMux6;
-	wire [16:0] oMux7;
-	wire [18:0] oMux8;
+	wire [17:0] oMux1;
+	wire [19:0] oMux2;
+	wire [21:0] oMux3;
+	wire [23:0] oMux4;
+	wire [25:0] oMux5;
+	wire [27:0] oMux6;
+	wire [29:0] oMux7;
+	wire [31:0] oMux8;
 
-	mux_4x1 # (4) mux1(.Shifted_A(shifted_4A), .Q(oMux1), .A(A), .B(B[1:0]));
-	mux_4x1 # (6) mux2(.Shifted_A(shifted_6A), .Q(oMux2), .A(shifted_4A), .B(B[3:2]));
-	mux_4x1 # (8) mux3(.Shifted_A(shifted_8A), .Q(oMux3), .A(shifted_6A), .B(B[5:4]));
-	mux_4x1 # (10) mux4(.Shifted_A(shifted_10A), .Q(oMux4), .A(shifted_8A), .B(B[7:6]));
-	mux_4x1 # (12) mux5(.Shifted_A(shifted_12A), .Q(oMux5), .A(shifted_10A), .B(B[9:8]));
-	mux_4x1 # (14) mux6(.Shifted_A(shifted_14A), .Q(oMux6), .A(shifted_12A), .B(B[11:10]));
-	mux_4x1 # (16) mux7(.Shifted_A(shifted_16A), .Q(oMux7), .A(shifted_14A), .B(B[13:12]));
-	mux_4x1 # (18) mux8(.Q(oMux8), .A(shifted_16A), .B(B[15:14]));
+	mux_4x1 # (16) mux1(.Shifted_A(shifted_17A), .Q(oMux1), .A(A), .B(B[1:0]));
+	mux_4x1 # (18) mux2(.Shifted_A(shifted_19A), .Q(oMux2), .A(shifted_17A), .B(B[3:2]));
+	mux_4x1 # (20) mux3(.Shifted_A(shifted_21A), .Q(oMux3), .A(shifted_19A), .B(B[5:4]));
+	mux_4x1 # (22) mux4(.Shifted_A(shifted_23A), .Q(oMux4), .A(shifted_21A), .B(B[7:6]));
+	mux_4x1 # (24) mux5(.Shifted_A(shifted_25A), .Q(oMux5), .A(shifted_23A), .B(B[9:8]));
+	mux_4x1 # (26) mux6(.Shifted_A(shifted_27A), .Q(oMux6), .A(shifted_25A), .B(B[11:10]));
+	mux_4x1 # (28) mux7(.Shifted_A(shifted_29A), .Q(oMux7), .A(shifted_27A), .B(B[13:12]));
+	mux_4x1 # (30) mux8(.Q(oMux8), .A(shifted_29A), .B(B[15:14]));
 
 	// Se suman los resultados de todos los muxes segun el algoritmo.	
 	always @(*)begin 
