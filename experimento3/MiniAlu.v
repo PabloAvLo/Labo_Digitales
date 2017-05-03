@@ -5,7 +5,11 @@ module MiniAlu
 (
  input wire Clock,
  input wire Reset,
- output wire [7:0] oLed
+ output wire [7:0] oLed,
+ output wire LCD_E,
+ output wire LCD_RS,
+ output wire LCD_RW,
+ output wire [3:0] SF_DATA
 );
 
 wire [15:0]  wIP,wIP_temp;
@@ -109,6 +113,10 @@ IMUL arr_mult(.oResult(wArr_mul), .A(wSourceData1), .B(wSourceData0));
 
 // Instancia de IMUL2
 IMUL2 mux_mult(.result(wArr_mul2), .A(wSourceData0), .B(wSourceData1));
+
+
+Module_LCD_Control LCD_DISPLAY (.Clock(Clock), .Reset(Reset), .LCD_E(LCD_E), .LCD_RS(LCD_RS), 
+								.LCD_RW(LCD_RW), .SF_DATA(SF_DATA));
 
 always @ ( * )
 begin

@@ -1,4 +1,6 @@
 `timescale 1ns / 1ps
+//`include "Module_LCD_Control.v"
+
 //------------------------------------------------
 module UPCOUNTER_POSEDGE # (parameter SIZE=16)
 (
@@ -177,4 +179,469 @@ module IMUL2 (result, A, B);
 		result = oMux1 + oMux2 + oMux3 + oMux4 + oMux5 + oMux6 + oMux7 + oMux8;
 	end
 
+endmodule
+
+//----------------------------------------------------------------------
+
+module Module_LCD_Control (Clock, Reset, LCD_E, LCD_RS, 
+							LCD_RW, SF_DATA);
+
+input wire Clock;
+input wire Reset;
+output reg LCD_E;
+output reg LCD_RS; //0=Command, 1=Data
+//output reg oLCD_StrataFlashControl;
+output reg LCD_RW;
+reg [7:0]CMD; 
+output reg[3:0] SF_DATA;
+
+reg [7:0] rCurrentState, rNextState;
+reg [7:0] rCurrentStateWrite, rNextStateWrite;
+reg [7:0] rCurrentStateTM, rNextStateTM;
+reg [31:0] rTimeCount;
+reg rTimeCountReset;
+reg wWriteDone;
+reg initDone;
+reg txInit;
+
+
+//----------------------------------------------
+//Next State and delay logic
+always @ ( posedge Clock ) begin
+	if (Reset) begin
+		rCurrentState <= `IDLE;
+		rTimeCount <= 32'b0; 
+	end
+	else begin
+		if (rTimeCountReset) begin
+			rTimeCountReset <= 1'b0;
+			rTimeCount <= 32'b0;
+		end else
+			rTimeCount <= rTimeCount + 32'b1;
+	rCurrentState <= rNextState; 
+	end
+end
+
+//----------------------------------------------
+//Current state and output logic
+always @ (*) begin
+	case(rCurrentState)
+	//------------------------------------------
+	//Init State Machine
+	//------------------------------------------
+	`IDLE:
+	begin
+		LCD_E = 1'b0;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0;
+		initDone = 1'b0;
+		if (~Reset) begin
+			rTimeCountReset = 1'b1;
+			rNextState = `FIFTEENMS; 
+		end else
+			rNextState = `IDLE;
+	end	
+	//------------------------------------------
+	`FIFTEENMS:
+	begin
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0;
+		initDone = 1'b0;
+		if (rTimeCount < 800000)
+			rNextState = `FIFTEENMS;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextState = `ONE;
+	end end
+	//------------------------------------------
+	`ONE:
+	begin
+		LCD_E = 1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0011;
+		initDone = 1'b0;
+		if (rTimeCount < 20)
+			rNextState = `ONE;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextState = `TWO;
+		end
+	end
+	//------------------------------------------
+	`TWO:
+	begin
+		LCD_E = 0;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0011;
+		initDone = 1'b0;
+		if (rTimeCount < 230000)
+			rNextState = `TWO;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextState = `THREE;
+		end
+	end
+	//------------------------------------------
+	`THREE:
+	begin
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0011;
+		initDone = 1'b0;
+		if (rTimeCount < 20)
+			rNextState = `THREE;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextState = `FOUR;
+		end	
+	end
+	//------------------------------------------
+	`FOUR:
+	begin
+		LCD_E = 1'b0;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0011;
+		initDone = 1'b0;
+		if (rTimeCount < 5500)
+			rNextState = `FOUR;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextState = `FIVE;
+		end		
+	end
+	//------------------------------------------
+	`FIVE:
+	begin
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0011;
+		initDone = 1'b0;
+		if (rTimeCount < 20)
+			rNextState = `FIVE;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextState = `SIX;
+		end	
+	end
+	//------------------------------------------
+	`SIX:
+	begin
+		LCD_E = 1'b0;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0011;
+		initDone = 1'b0;
+		if (rTimeCount < 2200)
+			rNextState = `SIX;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextState = `SEVEN;
+		end		
+	end
+	//------------------------------------------
+	`SEVEN:
+	begin
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0010;
+		initDone = 1'b0;
+		if (rTimeCount < 20)
+			rNextState = `SEVEN;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextState = `EIGHT;
+		end	
+	end
+	//------------------------------------------
+	`EIGHT:
+	begin
+		LCD_E = 1'b0;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0010;
+		initDone = 1'b0;
+		if (rTimeCount < 2200)
+			rNextState = `EIGHT;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextState = `DONE;
+		end
+	end
+	//------------------------------------------
+	`DONE:
+	begin
+		LCD_E = 1'b0;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0010;
+		initDone = 1'b1;
+		rNextState = `DONE;
+	end
+	//------------------------------------------
+	default:
+	begin 
+		LCD_E = 1'b0;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0;
+		initDone = 1'b0;
+		if (~Reset) begin
+			rTimeCountReset = 1'b1;
+			rNextState = `FIFTEENMS; 
+		end else
+			rNextState = `IDLE;
+	end
+	endcase
+//------------MAIN SM------------------
+	case(rCurrentStateWrite)
+//------------------------------------------
+	`INIT_FINISH_LCD:
+	begin 
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0000;
+		CMD = 2'h28;
+		txInit = 1'b0;
+		if (initDone)
+			rNextStateWrite = `FUNCTION_SET;
+		else
+			rNextStateWrite = `INIT_FINISH_LCD;	
+	end
+//------------------------------------------
+	`FUNCTION_SET:
+	begin 
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0000;
+		CMD = 2'h28;
+		txInit = 1'b0;
+		rNextStateWrite = `ENTRY_SET;	
+	end
+//------------------------------------------
+	`ENTRY_SET:
+	begin 
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0000;
+		CMD = 2'h06;
+		txInit = 1'b0;
+		rNextStateWrite = `SET_DISPLAY;	
+	end
+//------------------------------------------
+	`SET_DISPLAY:
+	begin 
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0000;
+		CMD = 2'h0C;
+		txInit = 1'b0;
+		rNextStateWrite = `CLEAR_DISPLAY;
+	end
+//------------------------------------------
+	`CLEAR_DISPLAY:
+	begin 
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0000;
+		CMD = 2'h0C;
+		txInit = 1'b0;
+		rTimeCountReset = 1'b1;
+		rNextStateWrite = `PAUSE;
+	end
+//------------------------------------------
+	`PAUSE:
+	begin 
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0000;
+		CMD = 2'h0C;
+		txInit = 1'b0;
+		if (rTimeCount < 90000)
+			rNextStateWrite = `PAUSE;
+		else 
+			rNextStateWrite = `SET_ADDR;
+	end
+//------------------------------------------
+	`SET_ADDR:
+	begin 
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0000;
+		CMD = 2'h80;
+		txInit = 1'b1;
+		rNextStateWrite = `CHAR;
+	end
+//------------------------------------------
+	`CHAR:
+	begin 
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0000;
+		CMD = 2'h80;
+		txInit = 1'b1;
+		if (txInit)
+			rNextStateWrite = `CHAR;
+		else
+			rNextStateWrite = `DONE_MAIN_SM;
+	end
+//------------------------------------------
+	`DONE_MAIN_SM:
+	begin 
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0000;
+		CMD = 2'h00;
+		txInit = 1'b0;
+		rNextStateWrite = `DONE_MAIN_SM;
+	end
+	default:
+	begin 
+		LCD_E = 1'b1;
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		SF_DATA = 4'b0000;
+		CMD = 2'h28;
+		txInit = 1'b0;
+		if (initDone)
+			rNextStateWrite = `FUNCTION_SET;
+		else
+			rNextStateWrite = `INIT_FINISH_LCD;	
+	end
+	endcase
+
+//---------TIME CONSTRARINS SM-----------
+	case(rCurrentStateTM)
+//------------------------------------------
+	`DONE_TM:
+	begin
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		LCD_E = 1'b0;
+		SF_DATA = 4'b0;
+		if (txInit) begin
+			rNextStateTM = `HIGH_SETUP;
+			rTimeCountReset = 1'b1;
+		end
+		else
+			rNextStateTM = `DONE_TM;
+	end
+	//------------------------------------------
+	`HIGH_SETUP:
+	begin
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		LCD_E = 1'b0;
+		SF_DATA = CMD[7:4];
+		if (rTimeCount < 10)
+			rNextStateTM = `HIGH_SETUP;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextStateTM = `HIGH_HOLD;
+		end
+	end
+	//------------------------------------------
+	`HIGH_HOLD:
+	begin
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		LCD_E = 1'b1;
+		SF_DATA = CMD[7:4];
+		if (rTimeCount < 40)
+			rNextStateTM = `HIGH_HOLD;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextStateTM = `ONEUS;
+		end
+	end
+	//------------------------------------------
+	`ONEUS:
+	begin
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		LCD_E = 1'b1;
+		SF_DATA = CMD[7:4];
+		if (rTimeCount < 100)
+			rNextStateTM = `ONEUS;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextStateTM = `LOW_SETUP;
+		end
+	end
+	//------------------------------------------
+	`LOW_SETUP:
+	begin
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		LCD_E = 1'b0;
+		SF_DATA = CMD[3:0];
+		if (rTimeCount < 10)
+			rNextStateTM = `LOW_SETUP;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextStateTM = `LOW_HOLD;
+		end
+	end
+	//------------------------------------------
+	`LOW_HOLD:
+	begin
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		LCD_E = 1'b1;
+		SF_DATA = CMD[3:0];
+		if (rTimeCount < 40)
+			rNextStateTM = `LOW_HOLD;
+		else begin
+			rTimeCountReset = 1'b1;
+			rNextStateTM = `FORTYUS;
+		end
+	end
+	//------------------------------------------
+	`FORTYUS:
+	begin
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		LCD_E = 1'b1;
+		SF_DATA = CMD[3:0];
+		if (rTimeCount < 2500)
+			rNextStateTM = `FORTYUS;
+		else begin 
+			txInit = 1'b0;
+			rNextStateTM = `DONE;
+		end
+	end
+	//------------------------------------------
+	default:
+	begin
+		LCD_RW = 1'b0;
+		LCD_RS = 1'b0;
+		LCD_E = 1'b0;
+		SF_DATA = 4'b0;
+		if (txInit) begin
+			rNextStateTM = `HIGH_SETUP;
+			rTimeCountReset = 1'b1;
+			txInit = 1'b0;
+		end
+		else
+			rNextStateTM = `DONE_TM;
+	end
+	endcase
+end
 endmodule
