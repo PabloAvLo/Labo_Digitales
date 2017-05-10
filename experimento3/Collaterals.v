@@ -1,4 +1,6 @@
 `timescale 1ns / 1ps
+
+`include "Defintions.v"
 //`include "Module_LCD_Control.v"
 
 //------------------------------------------------
@@ -10,7 +12,6 @@ input wire Enable,
 output reg [SIZE-1:0] Q
 );
 
-
   always @(posedge Clock )
   begin
       if (Reset)
@@ -19,7 +20,6 @@ output reg [SIZE-1:0] Q
 		begin
 		if (Enable)
 			Q = Q + 1;
-			
 		end			
   end
 
@@ -192,9 +192,9 @@ output reg LCD_E;
 output reg LCD_RS; //0=Command, 1=Data
 //output reg oLCD_StrataFlashControl;
 output reg LCD_RW;
-reg [7:0]CMD; 
 output reg[3:0] SF_DATA;
 
+reg [7:0] CMD; 
 reg [7:0] rCurrentState, rNextState;
 reg [7:0] rCurrentStateWrite, rNextStateWrite;
 reg [7:0] rCurrentStateTM, rNextStateTM;
@@ -218,22 +218,25 @@ always @ ( posedge Clock ) begin
 			rTimeCount <= 32'b0;
 		end else
 			rTimeCount <= rTimeCount + 32'b1;
-	rCurrentState <= rNextState; 
+		rCurrentState <= rNextState;
+		rCurrentStateWrite <= rNextStateWrite;
+		rCurrentStateTM <= rNextStateTM;
 	end
 end
+
 
 //----------------------------------------------
 //Current state and output logic
 always @ (*) begin
+	LCD_RW =0;
+	
 	case(rCurrentState)
 	//------------------------------------------
-	//Init State Machine
+	//Init State M	achine
 	//------------------------------------------
 	`IDLE:
 	begin
 		LCD_E = 1'b0;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		SF_DATA = 4'b0;
 		initDone = 1'b0;
 		if (~Reset) begin
@@ -245,12 +248,10 @@ always @ (*) begin
 	//------------------------------------------
 	`FIFTEENMS:
 	begin
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
+		LCD_E = 1'b0;
 		SF_DATA = 4'b0;
 		initDone = 1'b0;
-		if (rTimeCount < 800000)
+		if (rTimeCount < 900000)
 			rNextState = `FIFTEENMS;
 		else begin
 			rTimeCountReset = 1'b1;
@@ -259,12 +260,10 @@ always @ (*) begin
 	//------------------------------------------
 	`ONE:
 	begin
-		LCD_E = 1;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		SF_DATA = 4'b0011;
+		LCD_E = 1;
 		initDone = 1'b0;
-		if (rTimeCount < 20)
+		if (rTimeCount < 30)
 			rNextState = `ONE;
 		else begin
 			rTimeCountReset = 1'b1;
@@ -275,9 +274,7 @@ always @ (*) begin
 	`TWO:
 	begin
 		LCD_E = 0;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
-		SF_DATA = 4'b0011;
+		SF_DATA = 4'b0000;
 		initDone = 1'b0;
 		if (rTimeCount < 230000)
 			rNextState = `TWO;
@@ -289,12 +286,10 @@ always @ (*) begin
 	//------------------------------------------
 	`THREE:
 	begin
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		SF_DATA = 4'b0011;
+		LCD_E = 1'b1;
 		initDone = 1'b0;
-		if (rTimeCount < 20)
+		if (rTimeCount < 30)
 			rNextState = `THREE;
 		else begin
 			rTimeCountReset = 1'b1;
@@ -305,9 +300,7 @@ always @ (*) begin
 	`FOUR:
 	begin
 		LCD_E = 1'b0;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
-		SF_DATA = 4'b0011;
+		SF_DATA = 4'b0000;
 		initDone = 1'b0;
 		if (rTimeCount < 5500)
 			rNextState = `FOUR;
@@ -319,12 +312,10 @@ always @ (*) begin
 	//------------------------------------------
 	`FIVE:
 	begin
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		SF_DATA = 4'b0011;
+		LCD_E = 1'b1;
 		initDone = 1'b0;
-		if (rTimeCount < 20)
+		if (rTimeCount < 30)
 			rNextState = `FIVE;
 		else begin
 			rTimeCountReset = 1'b1;
@@ -335,9 +326,7 @@ always @ (*) begin
 	`SIX:
 	begin
 		LCD_E = 1'b0;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
-		SF_DATA = 4'b0011;
+		SF_DATA = 4'b0000;
 		initDone = 1'b0;
 		if (rTimeCount < 2200)
 			rNextState = `SIX;
@@ -350,11 +339,9 @@ always @ (*) begin
 	`SEVEN:
 	begin
 		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		SF_DATA = 4'b0010;
 		initDone = 1'b0;
-		if (rTimeCount < 20)
+		if (rTimeCount < 30)
 			rNextState = `SEVEN;
 		else begin
 			rTimeCountReset = 1'b1;
@@ -365,9 +352,7 @@ always @ (*) begin
 	`EIGHT:
 	begin
 		LCD_E = 1'b0;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
-		SF_DATA = 4'b0010;
+		SF_DATA = 4'b0000;
 		initDone = 1'b0;
 		if (rTimeCount < 2200)
 			rNextState = `EIGHT;
@@ -379,20 +364,14 @@ always @ (*) begin
 	//------------------------------------------
 	`DONE:
 	begin
-		LCD_E = 1'b0;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
-		SF_DATA = 4'b0010;
+	//	LCD_E = 1'b0;
+	//	SF_DATA = 4'b0000;
 		initDone = 1'b1;
 		rNextState = `DONE;
 	end
 	//------------------------------------------
 	default:
 	begin 
-		LCD_E = 1'b0;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
-		SF_DATA = 4'b0;
 		initDone = 1'b0;
 		if (~Reset) begin
 			rTimeCountReset = 1'b1;
@@ -406,11 +385,8 @@ always @ (*) begin
 //------------------------------------------
 	`INIT_FINISH_LCD:
 	begin 
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
 		LCD_RS = 1'b0;
-		SF_DATA = 4'b0000;
-		CMD = 2'h28;
+		CMD = 2'h0;
 		txInit = 1'b0;
 		if (initDone)
 			rNextStateWrite = `FUNCTION_SET;
@@ -420,56 +396,53 @@ always @ (*) begin
 //------------------------------------------
 	`FUNCTION_SET:
 	begin 
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
 		LCD_RS = 1'b0;
-		SF_DATA = 4'b0000;
 		CMD = 2'h28;
-		txInit = 1'b0;
-		rNextStateWrite = `ENTRY_SET;	
+		txInit = 1'b1;
+		if (txInit)
+			rNextStateWrite = `FUNCTION_SET;
+		else
+			rNextStateWrite = `ENTRY_SET;	
 	end
 //------------------------------------------
 	`ENTRY_SET:
 	begin 
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
 		LCD_RS = 1'b0;
-		SF_DATA = 4'b0000;
 		CMD = 2'h06;
-		txInit = 1'b0;
-		rNextStateWrite = `SET_DISPLAY;	
+		txInit = 1'b1;
+		if (txInit)
+			rNextStateWrite = `ENTRY_SET;
+		else
+			rNextStateWrite = `SET_DISPLAY;	
 	end
 //------------------------------------------
 	`SET_DISPLAY:
 	begin 
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
 		LCD_RS = 1'b0;
-		SF_DATA = 4'b0000;
 		CMD = 2'h0C;
-		txInit = 1'b0;
-		rNextStateWrite = `CLEAR_DISPLAY;
+		txInit = 1'b1;
+		if (txInit)
+			rNextStateWrite = `SET_DISPLAY;
+		else
+			rNextStateWrite = `CLEAR_DISPLAY;
 	end
 //------------------------------------------
 	`CLEAR_DISPLAY:
 	begin 
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
 		LCD_RS = 1'b0;
-		SF_DATA = 4'b0000;
-		CMD = 2'h0C;
-		txInit = 1'b0;
+		CMD = 2'h01;
+		txInit = 1'b1;
 		rTimeCountReset = 1'b1;
-		rNextStateWrite = `PAUSE;
+		if (txInit)
+			rNextStateWrite = `CLEAR_DISPLAY;
+		else
+			rNextStateWrite = `PAUSE;
 	end
 //------------------------------------------
 	`PAUSE:
 	begin 
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
 		LCD_RS = 1'b0;
-		SF_DATA = 4'b0000;
-		CMD = 2'h0C;
+		CMD = 2'h01;
 		txInit = 1'b0;
 		if (rTimeCount < 90000)
 			rNextStateWrite = `PAUSE;
@@ -479,22 +452,19 @@ always @ (*) begin
 //------------------------------------------
 	`SET_ADDR:
 	begin 
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
 		LCD_RS = 1'b0;
-		SF_DATA = 4'b0000;
 		CMD = 2'h80;
 		txInit = 1'b1;
-		rNextStateWrite = `CHAR;
+		if (txInit)
+			rNextStateWrite = `SET_ADDR;
+		else
+			rNextStateWrite = `CHAR;
 	end
 //------------------------------------------
 	`CHAR:
 	begin 
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
-		SF_DATA = 4'b0000;
-		CMD = 2'h80;
+		LCD_RS = 1'b1;
+		CMD = 2'h41;
 		txInit = 1'b1;
 		if (txInit)
 			rNextStateWrite = `CHAR;
@@ -504,26 +474,18 @@ always @ (*) begin
 //------------------------------------------
 	`DONE_MAIN_SM:
 	begin 
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
 		LCD_RS = 1'b0;
-		SF_DATA = 4'b0000;
 		CMD = 2'h00;
 		txInit = 1'b0;
 		rNextStateWrite = `DONE_MAIN_SM;
 	end
+//------------------------------------------
 	default:
 	begin 
-		LCD_E = 1'b1;
-		LCD_RW = 1'b0;
 		LCD_RS = 1'b0;
-		SF_DATA = 4'b0000;
-		CMD = 2'h28;
+		CMD = 2'h00;
 		txInit = 1'b0;
-		if (initDone)
-			rNextStateWrite = `FUNCTION_SET;
-		else
-			rNextStateWrite = `INIT_FINISH_LCD;	
+		rNextStateWrite = `DONE_MAIN_SM;
 	end
 	endcase
 
@@ -532,10 +494,6 @@ always @ (*) begin
 //------------------------------------------
 	`DONE_TM:
 	begin
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
-		LCD_E = 1'b0;
-		SF_DATA = 4'b0;
 		if (txInit) begin
 			rNextStateTM = `HIGH_SETUP;
 			rTimeCountReset = 1'b1;
@@ -546,8 +504,6 @@ always @ (*) begin
 	//------------------------------------------
 	`HIGH_SETUP:
 	begin
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		LCD_E = 1'b0;
 		SF_DATA = CMD[7:4];
 		if (rTimeCount < 10)
@@ -560,8 +516,6 @@ always @ (*) begin
 	//------------------------------------------
 	`HIGH_HOLD:
 	begin
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		LCD_E = 1'b1;
 		SF_DATA = CMD[7:4];
 		if (rTimeCount < 40)
@@ -574,8 +528,6 @@ always @ (*) begin
 	//------------------------------------------
 	`ONEUS:
 	begin
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		LCD_E = 1'b1;
 		SF_DATA = CMD[7:4];
 		if (rTimeCount < 100)
@@ -588,8 +540,6 @@ always @ (*) begin
 	//------------------------------------------
 	`LOW_SETUP:
 	begin
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		LCD_E = 1'b0;
 		SF_DATA = CMD[3:0];
 		if (rTimeCount < 10)
@@ -602,8 +552,6 @@ always @ (*) begin
 	//------------------------------------------
 	`LOW_HOLD:
 	begin
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		LCD_E = 1'b1;
 		SF_DATA = CMD[3:0];
 		if (rTimeCount < 40)
@@ -616,24 +564,18 @@ always @ (*) begin
 	//------------------------------------------
 	`FORTYUS:
 	begin
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
 		LCD_E = 1'b1;
 		SF_DATA = CMD[3:0];
 		if (rTimeCount < 2500)
 			rNextStateTM = `FORTYUS;
 		else begin 
 			txInit = 1'b0;
-			rNextStateTM = `DONE;
+			rNextStateTM = `DONE_TM;
 		end
 	end
 	//------------------------------------------
 	default:
 	begin
-		LCD_RW = 1'b0;
-		LCD_RS = 1'b0;
-		LCD_E = 1'b0;
-		SF_DATA = 4'b0;
 		if (txInit) begin
 			rNextStateTM = `HIGH_SETUP;
 			rTimeCountReset = 1'b1;
