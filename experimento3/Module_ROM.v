@@ -13,7 +13,7 @@ begin
 	case (iAddress)
 
 	0: oInstruction = { `NOP ,24'd4000    };
-	1: oInstruction = { `STO , `R7, 16'b10 }; // Originalmente R7=1, ahora 2 para multiplicarse.
+	1: oInstruction = { `STO , `R7, 16'h4800 }; // Originalmente R7=1, ahora 2 para multiplicarse.
 	//1: oInstruction = { `STO , `R7, -16'b10 }; // Originalmente R7=1, ahora -2 para SMUL negatuva.
 	2: oInstruction = { `STO ,`R3,16'h1     }; 
 	3: oInstruction = { `STO, `R4,16'd1000 };
@@ -36,9 +36,12 @@ begin
 	//14: oInstruction = { `ADD ,`R7,`R7,`R3    };
 	//14: oInstruction = { `SUB ,`R7,`R7,`R3    }; //EJERCICIO 1.2
 	//14: oInstruction = { `SMUL,`R7,`R7,`R6  }; //EJERCICIO 2.1
-	14: oInstruction = { `IMUL,`R7,`R7,`R6  }; //EJERCICIO 2.2
+	//14: oInstruction = { `IMUL,`R7,`R7,`R6  }; //EJERCICIO 2.2
 	//14: oInstruction = { `IMUL2,`R7,`R7,`R6  }; //EJERCICIO 2.4
-	15: oInstruction = { `JMP ,  8'd2,16'b0   };
+	14: oInstruction = { `LCD ,4'b0,`R7,4'b0  };
+	15: oInstruction = {`SHL , `R7, `R7, 4'b100 };
+	16: oInstruction = { `LCD ,4'b0,`R7,4'b0  };
+	17: oInstruction = { `JMP ,  8'd2,16'b0   };
 
 	default:
 		oInstruction = { `LED ,  24'b10101010 };		//NOP

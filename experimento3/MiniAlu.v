@@ -12,6 +12,7 @@ module MiniAlu
  output wire [3:0] SF_DATA
 );
 
+reg [6:0] LCD_counter = 0;
 wire [15:0]  wIP,wIP_temp;
 reg         rWriteEnable,rBranchTaken;
 wire [27:0] wInstruction;
@@ -25,6 +26,9 @@ wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
 
 //EJERCICIO 2.1 : Cables con signo para SMUL (+1 bit y signed)
 wire signed [16:0] wSourceData0_signed,wSourceData1_signed;
+
+reg [256:0] 	chars = "L                               ";
+
 
 assign wSourceData0_signed = wSourceData0; // Para pasara adecuadamente los datos a SMUL y 
 assign wSourceData1_signed = wSourceData1; // analizar datos con y sin signo.
@@ -115,8 +119,12 @@ IMUL arr_mult(.oResult(wArr_mul), .A(wSourceData1), .B(wSourceData0));
 IMUL2 mux_mult(.result(wArr_mul2), .A(wSourceData0), .B(wSourceData1));
 
 
-Module_LCD_Control LCD_DISPLAY (.Clock(Clock), .Reset(Reset), .LCD_E(LCD_E), .LCD_RS(LCD_RS), 
-								.LCD_RW(LCD_RW), .SF_DATA(SF_DATA));
+//Module_LCD_Control LCD_DISPLAY (.Clock(Clock), .Reset(Reset), .LCD_E(LCD_E), .LCD_RS(LCD_RS), 
+								//.LCD_RW(LCD_RW), .SF_DATA(SF_DATA));
+
+//chars tiene que ser de 32 caracteres 
+LCD display (.clk(Clock), .chars(chars), /*.counter(LCD_counter),*/ .lcd_rs(LCD_RS), .lcd_rw(LCD_RW), .lcd_e(LCD_E), 
+			.lcd_4(SF_DATA[0]), .lcd_5(SF_DATA[1]), .lcd_6(SF_DATA[2]), .lcd_7(SF_DATA[3]));
 
 always @ ( * )
 begin
@@ -214,6 +222,33 @@ begin
 		rResult <= wArr_mul2; // Cable conectado a la salida de la instancia de  IMUL2
 	end
 		//-------------------------------------  
+	`LCD:
+	begin
+		rFFLedEN     <= 1'b0;
+		rBranchTaken <= 1'b0;
+		rWriteEnable <= 1'b1;		
+		//indicamos que vamos a poner los 4 bits mas significativos de
+		//Fuente1 en el codigo de la LCD.
+		//rResult <= {wSourceData1[15:12],29'b0};
+		if (LCD_counter >= 256)
+			LCD_counter = 0;
+
+		chars[(256-(4*LCD_counter)):(253-(4*LCD_counter))] <= wSourceData1[15:12]; 
+		//chars[256:253] <= wSourceData1[15:12]; 
+		LCD_counter = LCD_counter + 1;
+	end
+		//------------------------------------- 
+	`SHL:
+	begin
+		rFFLedEN     <= 1'b0;
+		rBranchTaken <= 1'b0;
+		rWriteEnable <= 1'b1;
+		//Fuente1 es desplazado a la izquierda una 
+	    //cantidad de bits igual a Fuente2 
+		//wSourceData1 <= wSourceData1 << wSourceData0;
+		rResult <= {wSourceData1 << wSourceData0,17'b0};
+	end
+		//------------------------------------- 
 	default:
 	begin
 		rFFLedEN     <= 1'b1;
