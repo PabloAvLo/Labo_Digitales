@@ -233,8 +233,205 @@ begin
 		if (LCD_counter >= 256)
 			LCD_counter = 0;
 
-		chars[(256-(4*LCD_counter)):(253-(4*LCD_counter))] <= wSourceData1[15:12]; 
+		//chars[(256-(4*LCD_counter)):(253-(4*LCD_counter))] <= wSourceData1[15:12]; 
 		//chars[256:253] <= wSourceData1[15:12]; 
+		if (LCD_counter < 64) begin
+			case(LCD_counter)
+				0: begin
+					chars[256:253] <= wSourceData1[15:12];
+				end
+				1: begin
+					chars[252:249] <= wSourceData1[15:12];
+				end
+				2: begin
+					chars[248:245] <= wSourceData1[15:12];
+				end
+				3: begin
+					chars[244:241] <= wSourceData1[15:12];
+				end
+				4: begin
+					chars[240:237] <= wSourceData1[15:12];
+				end
+				5: begin
+					chars[236:233] <= wSourceData1[15:12];
+				end
+				6: begin
+					chars[232:229] <= wSourceData1[15:12];
+				end
+				7: begin
+					chars[228:225] <= wSourceData1[15:12];
+				end
+				8: begin
+					chars[224:221] <= wSourceData1[15:12];
+				end
+				9: begin
+					chars[220:217] <= wSourceData1[15:12];
+				end
+				10: begin
+					chars[216:213] <= wSourceData1[15:12];
+				end
+				11: begin
+					chars[212:209] <= wSourceData1[15:12];
+				end
+				12: begin
+					chars[208:205] <= wSourceData1[15:12];
+				end
+				13: begin
+					chars[204:201] <= wSourceData1[15:12];
+				end
+				14: begin
+					chars[200:197] <= wSourceData1[15:12];
+				end
+				15: begin
+					chars[196:193] <= wSourceData1[15:12];
+				end
+				16: begin
+					chars[192:189] <= wSourceData1[15:12];
+				end
+				17: begin
+					chars[188:185] <= wSourceData1[15:12];
+				end
+				18: begin
+					chars[184:181] <= wSourceData1[15:12];
+				end
+				19: begin
+					chars[180:177] <= wSourceData1[15:12];
+				end
+				20: begin
+					chars[176:173] <= wSourceData1[15:12];
+				end
+				21: begin
+					chars[172:169] <= wSourceData1[15:12];
+				end
+				22: begin
+					chars[168:165] <= wSourceData1[15:12];
+				end
+				23: begin
+					chars[164:161] <= wSourceData1[15:12];
+				end
+				24: begin
+					chars[160:157] <= wSourceData1[15:12];
+				end
+				25: begin
+					chars[156:153] <= wSourceData1[15:12];
+				end
+				26: begin
+					chars[152:149] <= wSourceData1[15:12];
+				end
+				27: begin
+					chars[148:145] <= wSourceData1[15:12];
+				end
+				28: begin
+					chars[144:141] <= wSourceData1[15:12];
+				end
+				29: begin
+					chars[140:137] <= wSourceData1[15:12];
+				end
+				30: begin
+					chars[136:133] <= wSourceData1[15:12];
+				end
+				31: begin
+					chars[132:129] <= wSourceData1[15:12];
+				end
+				32: begin
+					chars[128:125] <= wSourceData1[15:12];
+				end
+				33: begin
+					chars[124:121] <= wSourceData1[15:12];
+				end
+				34: begin
+					chars[120:117] <= wSourceData1[15:12];
+				end
+				35: begin
+					chars[116:113] <= wSourceData1[15:12];
+				end
+				36: begin
+					chars[112:109] <= wSourceData1[15:12];
+				end
+				37: begin
+					chars[108:105] <= wSourceData1[15:12];
+				end
+				38: begin
+					chars[104:101] <= wSourceData1[15:12];
+				end
+				39: begin
+					chars[100:97] <= wSourceData1[15:12];
+				end
+				40: begin
+					chars[96:93] <= wSourceData1[15:12];
+				end
+				41: begin
+					chars[92:89] <= wSourceData1[15:12];
+				end
+				42: begin
+					chars[88:85] <= wSourceData1[15:12];
+				end
+				43: begin
+					chars[84:81] <= wSourceData1[15:12];
+				end
+				44: begin
+					chars[80:77] <= wSourceData1[15:12];
+				end
+				45: begin
+					chars[76:73] <= wSourceData1[15:12];
+				end
+				46: begin
+					chars[72:69] <= wSourceData1[15:12];
+				end
+				47: begin
+					chars[68:65] <= wSourceData1[15:12];
+				end
+				48: begin
+					chars[64:61] <= wSourceData1[15:12];
+				end
+				49: begin
+					chars[60:57] <= wSourceData1[15:12];
+				end
+				50: begin
+					chars[56:53] <= wSourceData1[15:12];
+				end
+				51: begin
+					chars[52:49] <= wSourceData1[15:12];
+				end
+				52: begin
+					chars[48:45] <= wSourceData1[15:12];
+				end
+				53: begin
+					chars[44:41] <= wSourceData1[15:12];
+				end
+				54: begin
+					chars[40:37] <= wSourceData1[15:12];
+				end
+				55: begin
+					chars[36:33] <= wSourceData1[15:12];
+				end
+				56: begin
+					chars[32:29] <= wSourceData1[15:12];
+				end
+				57: begin
+					chars[28:25] <= wSourceData1[15:12];
+				end
+				58: begin
+					chars[24:21] <= wSourceData1[15:12];
+				end
+				59: begin
+					chars[20:17] <= wSourceData1[15:12];
+				end
+				60: begin
+					chars[16:13] <= wSourceData1[15:12];
+				end
+				61: begin
+					chars[12:9] <= wSourceData1[15:12];
+				end
+				62: begin
+					chars[8:5] <= wSourceData1[15:12];
+				end
+				63: begin
+					chars[4:1] <= wSourceData1[15:12];
+				end
+		endcase end else 
+			LCD_counter = 0;
+
 		LCD_counter = LCD_counter + 1;
 	end
 		//------------------------------------- 
@@ -246,7 +443,7 @@ begin
 		//Fuente1 es desplazado a la izquierda una 
 	    //cantidad de bits igual a Fuente2 
 		//wSourceData1 <= wSourceData1 << wSourceData0;
-		rResult <= {wSourceData1 << wSourceData0,17'b0};
+		rResult <= wSourceData1 << wSourceData0;
 	end
 		//------------------------------------- 
 	default:
@@ -261,33 +458,3 @@ begin
 end
 
 endmodule
-
-
-// `SHL:
-// begin
-// 	rFFLedEN     <= 1'b0;
-// 	rBranchTaken <= 1'b0;
-// 	rWriteEnable <= 1'b1;
-// 	// Fuente1 es desplazado a la izquierda una cantidad de bits igual a Fuente2 
-// 	Destino <= Fuente1 << Fuente2; 
-// end
-
-
-// `LCD:
-// begin
-// 	rFFLedEN     <= 1'b0;
-// 	rBranchTaken <= 1'b0;
-// 	rWriteEnable <= 1'b1;
-// 	//deshabilitamos LCD_RW porque NO se va a leer del display
-// 	LCD_RW       <= 1'b0; 
-	
-// 	//le decimos a la Spartan que va a recibir una entrada para la LCD
-// 	LCD_E        <= 1'b1; 
-	
-// 	// se especifica que va a haber una escritura para el LCD 
-// 	LCD_RS 		 <= 1'b1; 
-	
-// 	//indicamos que vamos a poner los 4 bits mas significativos de
-// 	//Fuente1 en el codigo de la LCD.
-// 	lcd_Code     <= Fuente1[7:4]; 
-// end

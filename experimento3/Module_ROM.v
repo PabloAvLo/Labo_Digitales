@@ -38,9 +38,9 @@ begin
 	//14: oInstruction = { `SMUL,`R7,`R7,`R6  }; //EJERCICIO 2.1
 	//14: oInstruction = { `IMUL,`R7,`R7,`R6  }; //EJERCICIO 2.2
 	//14: oInstruction = { `IMUL2,`R7,`R7,`R6  }; //EJERCICIO 2.4
-	14: oInstruction = { `LCD ,4'b0,`R7,4'b0  };
-	15: oInstruction = {`SHL , `R7, `R7, 4'b100 };
-	16: oInstruction = { `LCD ,4'b0,`R7,4'b0  };
+	14: oInstruction = { `LCD ,8'b0,`R7,8'b0  };
+	15: oInstruction = {`SHL , `R7, `R7, 8'b100 };
+	16: oInstruction = { `LCD ,8'b0,`R7,8'b0  };
 	17: oInstruction = { `JMP ,  8'd2,16'b0   };
 
 	default:
