@@ -30,12 +30,18 @@ module TestBench;
 
 	// Outputs
 	wire [7:0] oLed;
+	wire VGA_RED, VGA_GREEN, VGA_BLUE, VGA_VSYNC, VGA_HSYNC;
 
 	// Instantiate the Unit Under Test (UUT)
 	MiniAlu uut (
 		.Clock(Clock), 
 		.Reset(Reset), 
-		.oLed(oLed)
+		.oLed(oLed),
+		.VGA_BLUE(VGA_BLUE),
+		.VGA_GREEN(VGA_GREEN);
+		.VGA_RED(VGA_RED);
+		.VGA_HSYNC(VGA_HSYNC);
+		.VGA_VSYNC(VGA_VSYNC);
 	);
 	
 	always

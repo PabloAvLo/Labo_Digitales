@@ -5,11 +5,12 @@ module MiniAlu
 (
  input wire Clock,
  input wire Reset,
- output wire [7:0] oLed
+ output wire [7:0] oLed,
+ output VGA_RED, VGA_GREEN, VGA_BLUE, VGA_VSYNC, VGA_HSYNC
 );
 
 wire [15:0]  wIP,wIP_temp;
-reg         rWriteEnable,rBranchTaken, rVGAWriteEnable,oVGA_R,oVGA_G,oVGA_B;
+reg         rWriteEnable,rBranchTaken, rVGAWriteEnable;
 wire [27:0] wInstruction;
 wire [3:0]  wOperation;
 // reg [15:0]   rResult;
@@ -18,6 +19,8 @@ wire [15:0]	wArr_mul; // Registro de resultado de IMUL
 wire [31:0] wArr_mul2; // Registro de resultado de IMUL2
 wire [7:0]  wSourceAddr0,wSourceAddr1,wDestination;
 wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
+
+wire oVGA_R,oVGA_G,oVGA_B; // EXPERIMENTO 4
 
 //EJERCICIO 2.1 : Cables con signo para SMUL (+1 bit y signed)
 wire signed [16:0] wSourceData0_signed,wSourceData1_signed;
@@ -45,13 +48,13 @@ RAM_DUAL_READ_PORT DataRam
 
 //**************** EXPERIMENTO 4 *************************
 
-RAM_SINGLE_READ_PORT # (3 ,24 ,640*480 ) VideoMemory
+RAM_SINGLE_READ_PORT # (3 ,24 ,640*480 ) VideoMemory // Memoria de 307200 posiciones de 24b de instruccion y 3b de datos (RGB).
 (
 . Clock ( Clock ) ,
 . iWriteEnable ( rVGAWriteEnable ) ,
 . iReadAddress ( 24'b0 ) ,
 . iWriteAddress ( {wSourceData1 [7:0] , wSourceData0[7:0]} ) ,
-. iDataIn ( wInstruction [23:21] )
+. iDataIn ( wInstruction [23:21] ),
 . oDataOut ( {oVGA_R,oVGA_G,oVGA_B} )
 ) ;
 
@@ -133,6 +136,7 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
 		rResult      <= 0;
 	end
 	//-------------------------------------
@@ -141,6 +145,7 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
+		rVGAWriteEnable <= 1'b0;
 		rResult      <= wSourceData1 + wSourceData0;
 	end
 	//-------------------------------------
@@ -149,6 +154,7 @@ begin
 		rFFLedEN     <= 1'b0;
 		rWriteEnable <= 1'b1;
 		rBranchTaken <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
 		rResult      <= wImmediateValue;
 	end
 	//-------------------------------------
@@ -157,6 +163,7 @@ begin
 		rFFLedEN     <= 1'b0;
 		rWriteEnable <= 1'b0;
 		rResult      <= 0;
+		rVGAWriteEnable <= 1'b0;
 		if (wSourceData1 <= wSourceData0 )
 			rBranchTaken <= 1'b1;
 		else
@@ -170,6 +177,7 @@ begin
 		rWriteEnable <= 1'b0;
 		rResult      <= 0;
 		rBranchTaken <= 1'b1;
+		rVGAWriteEnable <= 1'b0;
 	end
 	//-------------------------------------	
 	`LED:
@@ -178,6 +186,7 @@ begin
 		rWriteEnable <= 1'b0;
 		rResult      <= 0;
 		rBranchTaken <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
 	end
 		//-------------------------------------
 		//Ejercicio 1.2: Definicion
@@ -187,6 +196,7 @@ begin
 		rFFLedEN     <= 1'b0; // No enciende LEDS
 		rBranchTaken <= 1'b0;  // No salta
 		rWriteEnable <= 1'b1;  // Si escribe a memoria
+		rVGAWriteEnable <= 1'b0;
 		rResult      <= wSourceData1 - wSourceData0; // Resta dos registros y lo guarda en un tercero
 	end
 		//-------------------------------------
@@ -197,6 +207,7 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
+		rVGAWriteEnable <= 1'b0;
 		rResult <= wSourceData0_signed * wSourceData1_signed; // Cables de datos, con signo, de SMUL	
 	end  
 		//-------------------------------------
@@ -207,6 +218,7 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
+		rVGAWriteEnable <= 1'b0;
 		rResult <= wArr_mul; // Cable conectado a la salida de la instancia de  IMUL
 	end
 		//-------------------------------------
@@ -217,6 +229,7 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rWriteEnable <= 1'b1;
+		rVGAWriteEnable <= 1'b0;
 		rResult <= wArr_mul2; // Cable conectado a la salida de la instancia de  IMUL2
 	end
 		//-------------------------------------
@@ -227,7 +240,6 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rVGAWriteEnable <= 1'b1;
-		rResult <= wArr_mul2; // Cable conectado a la salida de la instancia de  IMUL2
 	end
 	
 		//-------------------------------------  
@@ -237,6 +249,7 @@ begin
 		rWriteEnable <= 1'b0;
 		rResult      <= 0;
 		rBranchTaken <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
 	end	
 	//-------------------------------------	
 	endcase	
