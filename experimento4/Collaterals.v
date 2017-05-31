@@ -181,26 +181,30 @@ endmodule
 
 //----------------------------------------------------------------------
 
-module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, iColors[2:0]);
+module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK); //, iColors[2:0]);
 
-	output reg [9:0] oVsync;
-	output reg [9:0] oHsync;
+	reg [9:0] oVsync_counter;
+	reg [9:0] oHsync_counter;
+	
+	output reg oVsync;
+	output reg oHsync;
 	output reg oRed, oGreen, oBlue;
 
 	input wire CLK;
-	input wire [2:0] iColors;
+//	input wire [2:0] iColors;
 
-	reg [19:0] counter_display; 
-	reg [1:0] vga_state;
+	reg [3:0] counter_display; 
+	reg [1:0] vga_state=0;
 
-	assign vga_state = 0;
-	assign next_state_vga = 0;
+//	initial vga_state = 0;
 
-	always @ (posedge clk) begin
+	always @ (posedge CLK) begin
 		case (vga_state)
 			0: begin 
-				oVsync <= 10'b0;
-				oHsync <= 10'b0;
+				oVsync_counter <= 10'b0;
+				oHsync_counter <= 10'b0;
+				oVsync <= 1'b1;
+				oHsync <= 1'b1;
 				oRed <= 1;
 				oGreen <= 0;
 				oBlue <= 0;
@@ -209,7 +213,7 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, iColors[2:0]);
 				end //end 0
 
 			1: begin
-				if (counter_display < 850000)
+				if (counter_display < 3)
 					counter_display <= counter_display + 1;
 				else begin
 					oRed <= 1;
@@ -217,19 +221,23 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, iColors[2:0]);
 					oBlue <= 0;
 					counter_display <= 0;
 					vga_state <= 1;
-					if (oVsync == 639) begin
-						if (oHsync == 479) begin
-							oVsync <= 10'b0;
-							oHsync <= 10'b0;
-						end else begin
-							oHsync <= oHsync + 1;
-							oVsync <= 0;							
-						end //else
-					end else begin
-						oVsync <= oVsync + 1;
-					end //else
-				end //else
-			end //begin
+					if (oHsync_counter == 639) begin
+						oHsync <= 0; //cambia fila
+						oHsync_counter <= 0;
+						oVsync_counter <= oVsync_counter + 1;
+						if (oVsync_counter == 479) begin 
+							oVsync <= 0;
+							oVsync_counter <= 0;
+						end 
+						else
+							oVsync <= 1;
+					end		
+					else begin
+							oHsync_counter <= oHsync_counter + 1;
+							oHsync <= 1;	
+					end							
+				end	
+			end	
 		endcase
 	end //end always @ posedge
 endmodule

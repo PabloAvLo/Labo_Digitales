@@ -58,6 +58,8 @@ RAM_SINGLE_READ_PORT # (3 ,24 ,640*480 ) VideoMemory // Memoria de 307200 posici
 . oDataOut ( {oVGA_R,oVGA_G,oVGA_B} )
 ) ;
 
+
+VGA_SYNC maquinita (.oVsync(VGA_VSYNC) , .oHsync(VGA_HSYNC), .oRed(VGA_RED), .oGreen(VGA_GREEN), .oBlue(VGA_BLUE), .CLK(Clock) );
 //*******************************************************
 
 assign wIPInitialValue = (Reset) ? 8'b0 : wDestination;
