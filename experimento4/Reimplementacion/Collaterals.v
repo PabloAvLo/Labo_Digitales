@@ -293,7 +293,7 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK); //, iColors[2:0]);
 				end
 				else
 					vga_state <= 5;
-			end //end 5		
+			end //end 5
 		endcase
 	end //end always @ posedge
 endmodule
