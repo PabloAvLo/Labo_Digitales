@@ -6,7 +6,7 @@ module MiniAlu
  input wire Clock,
  input wire Reset,
  output wire [7:0] oLed,
- output VGA_RED, VGA_GREEN, VGA_BLUE, VGA_VSYNC, VGA_HSYNC
+ output wire VGA_RED, VGA_GREEN, VGA_BLUE, VGA_VSYNC, VGA_HSYNC
 );
 
 wire [15:0]  wIP,wIP_temp;
@@ -60,6 +60,11 @@ RAM_SINGLE_READ_PORT # (3 ,24 ,640*480 ) VideoMemory // Memoria de 307200 posici
 
 
 VGA_SYNC maquinita (.oVsync(VGA_VSYNC) , .oHsync(VGA_HSYNC), .oRed(VGA_RED), .oGreen(VGA_GREEN), .oBlue(VGA_BLUE), .CLK(Clock) );
+//assign VGA_RED = 1;
+//assign VGA_GREEN = 1;
+//assign VGA_BLUE = 1;
+
+
 //*******************************************************
 
 assign wIPInitialValue = (Reset) ? 8'b0 : wDestination;

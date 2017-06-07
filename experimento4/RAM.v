@@ -26,6 +26,10 @@ begin
 end 
 endmodule
 
+//----------------------------------------------------------------------------------
+// EXPERIMENTO 4
+//----------------------------------------------------------------------------------
+
 module RAM_SINGLE_READ_PORT # ( parameter DATA_WIDTH= 16 , parameter ADDR_WIDTH=8, parameter MEM_SIZE=8 )
 (
 	input wire Clock ,
