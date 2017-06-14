@@ -28,6 +28,18 @@ wire signed [16:0] wSourceData0_signed,wSourceData1_signed;
 assign wSourceData0_signed = wSourceData0; // Para pasara adecuadamente los datos a SMUL y 
 assign wSourceData1_signed = wSourceData1; // analizar datos con y sin signo.
 
+reg clk_25Mhz = 0;
+reg counterClock = 0;
+
+always @(Clock) begin
+	counterClock <= !counterClock;
+	if (counterClock == 1) begin
+		clk_25Mhz <= !clk_25Mhz;
+	end else begin
+		clk_25Mhz <= clk_25Mhz;
+	end
+end
+
 ROM InstructionRom 
 (
 	.iAddress( wIP ),
@@ -59,7 +71,7 @@ RAM_SINGLE_READ_PORT # (3 ,24 ,640*480 ) VideoMemory // Memoria de 307200 posici
 ) ;
 
 
-VGA_SYNC maquinita (.oVsync(VGA_VSYNC) , .oHsync(VGA_HSYNC), .oRed(VGA_RED), .oGreen(VGA_GREEN), .oBlue(VGA_BLUE), .CLK(Clock) );
+VGA_SYNC maquinita (.oVsync(VGA_VSYNC) , .oHsync(VGA_HSYNC), .oRed(VGA_RED), .oGreen(VGA_GREEN), .oBlue(VGA_BLUE), .CLK(clk_25Mhz) );
 //assign VGA_RED = 1;
 //assign VGA_GREEN = 1;
 //assign VGA_BLUE = 1;
