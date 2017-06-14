@@ -198,7 +198,7 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK); //, iColors[2:0]);
 //	input wire [2:0] iColors;
 
 	reg [9:0] counter_Hsync; 
-	reg [1:0] vga_state=0;
+	reg [3:0] vga_state=0;
 
 //	initial vga_state = 0;
 
@@ -210,24 +210,24 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK); //, iColors[2:0]);
 				oHsync_Timer <= 10'b0;
 				oVsync <= 1'b1;
 				oHsync <= 1'b1;
-				oRed <= 1;
+				oRed <= 0;
 				oGreen <= 0;
 				oBlue <= 0;
 				counter_Hsync <= 0;
 				vga_state <= 1;
 			end //end 0
 
-			1: begin //BP+DISP+FP
+			1: begin //BP de HSync
 				oVsync_Timer <= 10'b0;
 				oVsync <= 1'b1;
 				oHsync <= 1'b1;
-				oRed <= 1;
+				oRed <= 0;
 				oGreen <= 0;
 				oBlue <= 0;
 				
 				counter_Hsync <= counter_Hsync;
 				
-				if(oHsync_Timer <=1408)begin					
+				if(oHsync_Timer <=192)begin					
 					oHsync_Timer <= oHsync_Timer +1;
 					vga_state <= 1;
 				end
@@ -237,32 +237,155 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK); //, iColors[2:0]);
 				end 
 			end //end 1
 			
-			2: begin //HSync
+			2: begin //DISP de HSync
 				oVsync_Timer <= 10'b0;
 				oVsync <= 1'b1;
-				oHsync <= 1'b0;
+				oHsync <= 1'b1;
 				oRed <= 1;
 				oGreen <= 0;
-				oBlue <= 0;	
+				oBlue <= 0;
 				
-				if(oHsync_Timer <=192)begin					
+				counter_Hsync <= counter_Hsync;
+				
+				if(oHsync_Timer <=2560)begin					
 					oHsync_Timer <= oHsync_Timer +1;
-					counter_Hsync <= counter_Hsync;
 					vga_state <= 2;
 				end
 				else begin
+					oHsync_Timer <= 0;
+					vga_state <= 3;
+				end 
+			end //end 2
+			
+			3: begin //FP de HSync
+				oVsync_Timer <= 10'b0;
+				oVsync <= 1'b1;
+				oHsync <= 1'b1;
+				oRed <= 0;
+				oGreen <= 0;
+				oBlue <= 0;
+				
+				
+				if(oHsync_Timer <=64)begin					
+					oHsync_Timer <= oHsync_Timer +1;
+					counter_Hsync <= counter_Hsync;
+					vga_state <= 3;
+				end
+				else begin
 					oHsync_Timer <= 0;					
-					if(counter_Hsync >=480) begin
+					if(counter_Hsync >=1912) begin
 						counter_Hsync <= 0;
-						vga_state <= 3; //VSync
+						vga_state <= 5; //PW VSync
 					end
 					else begin
 						counter_Hsync <= counter_Hsync +1;
-						vga_state <= 1;
+						vga_state <= 4; //PW HSync
 					end						
 				end
-			end	// end 2				
-			/*3: begin
+			end //end 3
+			
+			4: begin //PW de HSync
+				oVsync_Timer <= 10'b0;
+				oVsync <= 1'b1;
+				oHsync <= 1'b0;
+				oRed <= 0;
+				oGreen <= 0;
+				oBlue <= 0;	
+				
+				if(oHsync_Timer <=384)begin					
+					oHsync_Timer <= oHsync_Timer +1;
+					counter_Hsync <= counter_Hsync;
+					vga_state <= 4;
+				end
+				else begin
+						oHsync_Timer <= 0;
+						counter_Hsync <= counter_Hsync +1;
+						vga_state <= 1;
+				end
+			end	// end 4			
+		
+			
+			5: begin //PW de VSyn
+				oVsync <= 1'b0;
+				oHsync <= 1'b1;
+				oRed <= 0;
+				oGreen <= 0;
+				oBlue <= 0;
+				
+				counter_Hsync <= 0;
+				oHsync_Timer <= 0;
+				
+				if(oVsync_Timer<=6400) begin
+					oVsync_Timer <= oVsync_Timer +1;
+					vga_state <= 5;
+				end
+				else begin
+					oVsync_Timer <= 10'b0;			
+					vga_state <= 6;		
+				end			
+			end // end 5
+			
+6: begin //T_BP de VSyn
+				oVsync <= 1'b1;
+				oHsync <= 1'b1;
+				oRed <= 0;
+				oGreen <= 0;
+				oBlue <= 0;
+				
+				counter_Hsync <= counter_Hsync;
+				oHsync_Timer <= oHsync_Timer;
+			
+				if(oVsync_Timer<=92800) begin
+					oVsync_Timer <= oVsync_Timer +1;
+					vga_state <= 6;
+				end
+				else begin
+					oVsync_Timer <= 10'b0;			
+					vga_state <= 7;		
+				end			
+			end // end 6
+			
+			7: begin //T_DISP de VSyn
+				oVsync <= 1'b1;
+				oHsync <= 1'b1;
+				oRed <= 0;
+				oGreen <= 0;
+				oBlue <= 0;
+			
+				counter_Hsync <= counter_Hsync;
+				oHsync_Timer <= oHsync_Timer;
+				
+				if(oVsync_Timer<=1536000) begin
+					oVsync_Timer <= oVsync_Timer +1;
+					vga_state <= 7;
+				end
+				else begin
+					oVsync_Timer <= 10'b0;			
+					vga_state <= 8;		
+				end			
+			end // end 5
+			
+		8: begin //T_FP de VSyn
+				oVsync <= 1'b1;
+				oHsync <= 1'b1;
+				oRed <= 0;
+				oGreen <= 0;
+				oBlue <= 0;
+			
+				counter_Hsync <= counter_Hsync;
+				oHsync_Timer <= oHsync_Timer;
+				
+				if(oVsync_Timer<=32000) begin
+					oVsync_Timer <= oVsync_Timer +1;
+					vga_state <= 8;
+				end
+				else begin
+					oVsync_Timer <= 10'b0;			
+					vga_state <= 1;		
+				end			
+			end // end 8
+			
+			/*4: begin
 				oVsync <= 1'b1;
 				oHsync <= 1'b1;
 				oRed <= 1;
@@ -279,27 +402,7 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK); //, iColors[2:0]);
 					oVsync_Timer <= 10'b0;			
 					vga_state <= 4;		
 				end
-			end // end 3*/
-			
-			3: begin //VSyn
-				oVsync <= 1'b0;
-				oHsync <= 1'b1;
-				oRed <= 1;
-				oGreen <= 0;
-				oBlue <= 0;
-				
-				counter_Hsync <= counter_Hsync;
-				oHsync_Timer <= oHsync_Timer;
-				
-				if(oVsync_Timer<=3200) begin
-					oVsync_Timer <= oVsync_Timer +1;
-					vga_state <= 3;
-				end
-				else begin
-					oVsync_Timer <= 10'b0;			
-					vga_state <= 1;		
-				end			
-			end // end 4
+			end // end 4*/
 				
 		/*	1: begin
 				if (counter_display < 3)

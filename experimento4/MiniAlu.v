@@ -247,6 +247,9 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rVGAWriteEnable <= 1'b1;
+		//VGA_RED =
+		//VGA_GREEN =
+		//VGA_BLUE =
 	end
 	
 		//-------------------------------------  
