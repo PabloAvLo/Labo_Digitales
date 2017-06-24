@@ -76,10 +76,6 @@ wire [3:0] wMarco; //, wCuadro;
 wire [2:0] wVGAOutputSelection;
 
 assign wMarco = 3'b0;
-//assign wCuadro = 3'b100;
-// assign wVGAOutputSelection = ( ((oHcounter >= iXRedCounter + 10'd240) && (oHcounter <= iXRedCounter + 10'd240 + 10'd32)) &&
-// 										 ((oVcounter >= iYRedCounter + 10'd141) && (oVcounter <= iYRedCounter + 10'd141 + 8'd32))) ?
-// 										iColorCuadro : {iVGA_R, iVGA_G, iVGA_B};
 
 assign wVGAOutputSelection = {iVGA_R, iVGA_G, iVGA_B};
 
@@ -94,8 +90,12 @@ assign oVsync = (oVcounter < 519) ? 1'b1 : 1'b0; //480
 
 // Marco negro e imagen de 256*256
 assign {oVGA_R, oVGA_G, oVGA_B} = (oVcounter < 142 || oVcounter >= 398 || 
-					  oHcounter < 100 || oHcounter > 356) ? 
+					  oHcounter < 75 || oHcounter > 665) ? 
 					  wMarco : wVGAOutputSelection;
+
+// assign {oVGA_R, oVGA_G, oVGA_B} = (oVcounter < 142 || oVcounter >= 398 || 
+// 					  oHcounter < 100 || oHcounter > 356) ? 
+// 					  wMarco : wVGAOutputSelection;			
 
 UPCOUNTER_POSEDGE # (10) HORIZONTAL_COUNTER
 (
