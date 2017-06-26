@@ -24,4 +24,10 @@
 `define R6 8'd6
 `define R7 8'd7
 
+// Teclas PS2 
+`define W 8'h1D
+`define A 8'h1C
+`define S 8'h1B
+`define D 8'h23
+
 `endif
