@@ -3,13 +3,27 @@
 
 module MiniAlu
 (
+// Inputs
  input wire Clock,
  input wire Reset,
- input wire PS2_CLK,
- input wire PS2_DATA,
- output wire VGA_RED, VGA_GREEN, VGA_BLUE, 
- output wire VGA_HSYNC,
- output wire VGA_VSYNC
+ input wire BTN_EAST, // Moverse Iquierda
+ input wire BTN_NORTH, // Moverse Arriba
+ input wire BTN_SOUTH, // Moverse Abajo
+ input wire BTN_WEST, // Moverse Derecha
+ input wire ROT_CENTER, // Seleccionador
+ input wire ROT_A, // Girar sentido Horario
+ input wire ROT_B, // Girar sentido Anti Horario
+
+// Outputs
+ output wire VGA_RED, VGA_GREEN, VGA_BLUE,  // Colores VGA
+ output wire VGA_HSYNC, // Cambio de fila VGA
+ output wire VGA_VSYNC, // Return inicio VGA 
+ 
+ output wire LCD_E, // LCD Enable
+ output wire LCD_RS, // LCD 
+ output wire LCD_RW, // LCD
+ output wire [3:0] SF_DATA // Datos para LCD
+ 
 );
 
 wire [15:0] wIP,wIP_temp; //Wires de 16 bits para Dirección
@@ -80,32 +94,7 @@ VGA_controller VGA_controlador
 	.oVcounter(wV_counter),
 	.oHcounter(wH_counter)
 );
-reg [7:0] Filter;
-reg FClock;
-always @ (posedge Clock_lento) begin
-	Filter <= {PS2_CLK, Filter[7:1]};
-	if (Filter == 8'hFF) FClock = 1'b1;
-	if (Filter == 8'd0) FClock = 1'b0;
-end
 
-reg [7:0] FilterData;
-reg FData;
-always @ (posedge Clock_lento) begin
-	FilterData <= {PS2_DATA, FilterData[7:1]};
-	if (FilterData == 8'hFF) FData = 1'b1;
-	if (FilterData == 8'd0) FData = 1'b0;
-end
-
-
-// PS2_Controller PS2_Controller
-// (
-// 	.Reset(Reset),
-// 	.PS2_CLK(FClock),
-// 	.PS2_DATA(FData),
-// 	.ColorReg(HolyCow),
-// 	.XRedCounter(wXRedCounter),
-// 	.YRedCounter(wYRedCounter)
-// );
 
 ROM InstructionRom 
 (
@@ -196,6 +185,23 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD4 //FFs de Destino
 );
 
 assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
+
+
+reg [256:0] 	chars = "Atrapa al Topo                  ";
+reg [256:0] 	charsTemp = "Puntaje:                        ";
+
+//chars tiene que ser de 32 caracteres 
+LCD display (
+	.clk(Clock), 
+	.chars(chars), 
+	.lcd_rs(LCD_RS),
+	.lcd_rw(LCD_RW), 
+	.lcd_e(LCD_E), 
+	.lcd_4(SF_DATA[0]), 
+	.lcd_5(SF_DATA[1]),
+	.lcd_6(SF_DATA[2]), 
+	.lcd_7(SF_DATA[3])
+);
 	
 always @ ( * )
 begin

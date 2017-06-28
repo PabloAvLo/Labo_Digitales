@@ -11,7 +11,6 @@ input wire Enable,
 output reg [SIZE-1:0] Q
 );
 
-
   always @(posedge Clock )
   begin
       if (Reset)
@@ -89,10 +88,6 @@ assign {oVGA_R, oVGA_G, oVGA_B} = (oVcounter < 142 || oVcounter >= 398 ||
 					  oHcounter < 242 || oHcounter > 498) ? 
 					  wMarco : wVGAOutputSelection;
 
-// assign {oVGA_R, oVGA_G, oVGA_B} = (oVcounter < 142 || oVcounter >= 398 || 
-// 					  oHcounter < 100 || oHcounter > 356) ? 
-// 					  wMarco : wVGAOutputSelection;			
-
 UPCOUNTER_POSEDGE # (10) HORIZONTAL_COUNTER
 (
 .Clock	(   Clock_lento   ), 
@@ -112,121 +107,166 @@ UPCOUNTER_POSEDGE # (10) VERTICAL_COUNTER
 );
 
 endmodule
-// //----------------------------------------------------------------------
-// // Módulo PS2 controller
-// module PS2_Controller 
-// (
-// 	input wire Reset,
-// 	input wire PS2_CLK,
-// 	input wire PS2_DATA,
-// 	output reg [7:0] XRedCounter,
-// 	output reg [7:0] YRedCounter,
-// 	output reg [2:0] ColorReg
-// );
 
-// `include "Defintions.v"
+//----------------------------------------------------------------------
+// Module LCD
 
-// reg [7:0] ScanCode;
-// reg [8:0] rDataBuffer;
-// reg Done, Read;
-// reg [3:0] ClockCounter;
-// reg rFlagF0, rFlagNoError;
+module LCD(
+	clk,
+	chars,
+	lcd_rs, lcd_rw, lcd_e, lcd_4, lcd_5, lcd_6, lcd_7);
 
-// always @ (negedge PS2_CLK or posedge Reset) begin
-// 	if (Reset) begin
-// 		ClockCounter <= 0;
-// 		Read <= 1;
-// 		Done <= 0;
-// 		end
-// 	else begin
-// 		if (Read == 1'b1 && PS2_DATA == 1'b0) begin
-// 			Read <= 0;
-// 			Done <= 0;
-// 			end
-// 		else if (Read == 1'b0) begin
-// 			if (ClockCounter < 9) begin
-// 				ClockCounter <= ClockCounter + 1;
-// 				rDataBuffer <= {PS2_DATA, rDataBuffer[8:1]};
-// 				Done <= 0;
-// 				end
-// 			else begin
-// 				ClockCounter <= 1'b0;
-// 				Done <= 1;
-// 				ScanCode <= rDataBuffer[7:0];
-// 				Read <= 1;
-// 				if (^ScanCode == rDataBuffer[8])
-// 					rFlagNoError <= 1'b0;
-// 				else 
-// 					rFlagNoError <= 1'b1;
-// 				end
-			
-// 		end
-// 	end
-// end
+	// inputs and outputs
+	input clk;
+	output lcd_rs, lcd_rw, lcd_e, lcd_4, lcd_5, lcd_6, lcd_7;
 
-// always @ (posedge Done or posedge Reset) begin
-// 	if (Reset) begin
-// 		XRedCounter <= 8'b0;
-// 		YRedCounter <= 8'b0;
-// 		rFlagF0 <= 1'b0;
-// 		ColorReg <= 3'b1;
-// 		end
-// 	else begin
-// 		if (rFlagF0) begin
-// 			rFlagF0 <= 1'b0;
-// 		end
-// 		else
-// 		case (ScanCode)
-// 			`W: begin
-// 				YRedCounter <= YRedCounter - 8'd32;
-// 				XRedCounter <= XRedCounter;
-// 				rFlagF0 <= rFlagF0;
-// 				ColorReg <= ColorReg;
-// 			end
-			
-// 			`S: begin
-// 				YRedCounter <= YRedCounter + 8'd32;
-// 				XRedCounter <= XRedCounter;	
-// 				rFlagF0 <= rFlagF0;
-// 				ColorReg <= ColorReg;
-// 			end
-			
-// 			`A: begin
-// 				YRedCounter <= YRedCounter;
-// 				XRedCounter <= XRedCounter - 8'd32;	
-// 				rFlagF0 <= rFlagF0;
-// 				ColorReg <= ColorReg;
-// 			end
-			
-// 			`D: begin
-// 				YRedCounter <= YRedCounter;
-// 				XRedCounter <= XRedCounter + 8'd32;
-// 				rFlagF0 <= rFlagF0;
-// 				ColorReg <= ColorReg;
-// 			end
-			
-// 			8'hF0: begin	//Señal de finalizacion del PS2
-// 				YRedCounter <= YRedCounter;
-// 				XRedCounter <= XRedCounter;				
-// 				rFlagF0 <= 1'b1;
-// 				ColorReg <= ColorReg;
-// 			end
-			
-// 			8'h29: begin	//29 = Barra Espaciadora
-// 				ColorReg <= ColorReg + 3'b1;
-// 				YRedCounter <= YRedCounter;
-// 				XRedCounter <= XRedCounter;				
-// 				rFlagF0 <= rFlagF0;
-// 			end
-			
-// 			default: begin
-// 				YRedCounter <= YRedCounter;
-// 				XRedCounter <= XRedCounter;
-// 				rFlagF0 <= rFlagF0;
-// 				ColorReg <= ColorReg;
-// 			end
-// 		endcase
-// 	end
-// end
+	input wire [256:0] 	chars;
+	reg	 	lcd_rs, lcd_rw, lcd_e, lcd_4, lcd_5, lcd_6, lcd_7;
 
-// endmodule 
+	// internal variables
+	reg [5:0] 	lcd_code;
+	reg [1:0] 	write = 2'b10;	// write code has 10 for rs rw
+
+	// delays
+	reg [1:0]	before_delay = 3;	// time before on
+	reg [3:0]	on_delay = 13;		// time on
+	reg [23:0]	off_delay = 750_001;	// time off
+
+	// states and counters
+	reg [6:0]	current_State = 0;
+	reg [19:0]	count = 0;
+	reg [1:0]	delay_state = 0;
+
+	// character data
+	reg [256:0]	chars_hold = "                                ";
+	wire [3:0]	chars_data [63:0];	// array of characters
+
+	// redirects characters data to an array
+	generate
+	genvar i;
+		for (i = 64; i > 0; i = i-1)
+			begin : for_name
+				assign chars_data[64-i] = chars_hold[i*4-1:i*4-4];
+			end
+	endgenerate
+
+	always @ (posedge clk) begin
+
+		// store character data
+		if (current_State == 10 && count == 0)
+			chars_hold <= chars;
+			//chars_data [counter] <= nibble;
+		
+		// set time when enable is off
+		//INICIALIZACION
+		if (current_State < 3) begin
+			case (current_State)
+				0: off_delay <= 750000;	// 15ms delay
+				1: off_delay <= 250000;	// 5ms delay
+				2: off_delay <= 5000;		// 0.1ms delay
+			endcase
+		end else begin
+			if (current_State > 12) begin
+				off_delay	<= 2000;	// 40us delay
+			end else begin
+				off_delay	<= 250000;	// 5ms delay
+			end
+		end
+
+		// delays during each state
+		if (current_State < 80) begin
+		case (delay_state)
+			0: begin
+					// enable is off
+					lcd_e <= 0;
+					{lcd_rs,lcd_rw,lcd_7,lcd_6,lcd_5,lcd_4} <= lcd_code;
+					if (count == off_delay) begin
+						count <= 0;
+						delay_state <= delay_state + 1;
+					end else begin
+						count <= count + 1;
+					end
+				end
+			1: begin
+					// data set before enable is on
+					lcd_e <= 0;
+					if (count == before_delay) begin
+						count <= 0;
+						delay_state <= delay_state + 1;
+					end else begin
+						count <= count + 1;
+					end
+				end
+			2: begin
+					// enable on
+					lcd_e <= 1;
+					if (count == on_delay) begin
+						count <= 0;
+						delay_state <= delay_state + 1;
+					end else begin
+						count <= count + 1;
+					end
+				end
+			3: begin
+					// enable off with data set
+					lcd_e <= 0;
+					if (count == before_delay) begin
+						count <= 0;
+						delay_state <= 0;
+						current_State <= current_State + 1;		// next case
+					end else begin
+						count <= count + 1;
+					end
+				end
+		endcase
+		end
+
+		// set lcd_code
+		if (current_State < 12) begin
+			// initialize LCD
+			case (current_State)
+				0: lcd_code <= 6'h03;        // power-on initialization
+				1: lcd_code <= 6'h03;
+				2: lcd_code <= 6'h03;
+				3: lcd_code <= 6'h02;
+				4: lcd_code <= 6'h02;        // function set
+				5: lcd_code <= 6'h08;
+				6: lcd_code <= 6'h00;        // entry mode set
+				7: lcd_code <= 6'h06;
+				8: lcd_code <= 6'h00;        // display on/off control
+				9: lcd_code <= 6'h0C;
+				10:lcd_code <= 6'h00;        // display clear
+				11:lcd_code <= 6'h01;
+				default: lcd_code <= 6'h10;	
+			endcase
+		end else begin
+
+			// set character data to lcd_code
+			if (current_State == 44) begin			// change address at end of first line
+				lcd_code <= {2'b00, 4'b1100};	// 0100 0000 address change
+			end else if (current_State == 45) begin
+				lcd_code <= {2'b00, 4'b0000};
+			end else begin
+				if (current_State < 44) begin
+					lcd_code <= {write, chars_data[current_State-12]};
+				end else begin
+					lcd_code <= {write, chars_data[current_State-14]};
+				end
+			end
+
+		end
+
+		// hold and loop back
+		if (current_State == 78) begin
+			lcd_e <= 0;
+			if (count == off_delay) begin
+				current_State 			<= 10;
+				count 		<= 0;
+			end else begin
+				count <= count + 1;
+			end
+		end
+
+	end
+
+endmodule
