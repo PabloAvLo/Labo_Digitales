@@ -85,7 +85,7 @@ assign oVsync = (oVcounter < 519) ? 1'b1 : 1'b0; //480
 
 // Marco negro e imagen de 256*256
 assign {oVGA_R, oVGA_G, oVGA_B} = (oVcounter < 142 || oVcounter >= 398 || 
-					  oHcounter < 242 || oHcounter > 498) ? 
+					  oHcounter < 242 || oHcounter > 497) ? 
 					  wMarco : wVGAOutputSelection;
 
 UPCOUNTER_POSEDGE # (10) HORIZONTAL_COUNTER

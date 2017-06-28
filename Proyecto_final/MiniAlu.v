@@ -117,7 +117,7 @@ RAM_DUAL_READ_PORT # (16, 3, 8) DataRam
 
 
 assign wH_read = (wH_counter >= 242 && wH_counter <= 498) ? (wH_counter - 240) : 8'd0;
-assign wV_read = (wV_counter >= 142 && wV_counter <= 398) ? (wV_counter - 142) : 8'd0;
+assign wV_read = (wV_counter >= 141 && wV_counter <= 397) ? (wV_counter - 141) : 8'd0;
 // Memoria ram para video
 RAM_SINGLE_READ_PORT # (3,16,65535) VideoMemory
 (
