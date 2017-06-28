@@ -11,6 +11,12 @@
 `define SALTO_8 8'd28
 `define SALTO_9 8'd31
 `define SALTO_10 8'd34
+// `define SALTO_11 8'd70
+// `define SALTO_12 8'd73
+// `define SALTO_13 8'd76
+`define SALTO_14 8'd53
+`define SALTO_15 8'd56
+`define SALTO_16 8'd59
 
 
 module ROM
@@ -33,7 +39,7 @@ begin
 	6: oInstruction = { `STO ,`R7, 16'd0 };	//R7 => Fil 	Registros en donde se elige donde escribir en RAM, y la posición en pantalla.
 	7: oInstruction = { `STO ,`R6, 16'd0 };	//R8 => Col
 	
-	//---------------PRIMERA FILA---------------
+	//---------------PRIMERA COLUMNA---------------
 	// Salto_1
 	8: oInstruction = { `VGA ,`COLOR_WHITE, `R6, `R7  }; //pasa direccion 0 a la RAM para guardar color azul
 	9: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
@@ -58,7 +64,7 @@ begin
 	21: oInstruction = { `INC, `R6, `R6, 8'd0 };
 	22: oInstruction = { `BLE, `SALTO_1, `R6, `R4 };
 
-	//---------------SEGUNDA FILA---------------
+	//---------------SEGUNDA COLUMNA---------------
 
 	23: oInstruction = { `STO ,`R7, 16'd0 };	//R7 => Fil
 	24: oInstruction = { `STO ,`R4, 16'd127 };	//R4 => Limite Col
@@ -87,7 +93,7 @@ begin
 	38: oInstruction = { `INC, `R6, `R6, 8'd0 };
 	39: oInstruction = { `BLE, `SALTO_2, `R6, `R4 };	
 	
-	//---------------TERCERA FILA---------------
+	//---------------TERCERA COLUMNA---------------
 
 	40: oInstruction = { `STO ,`R7, 16'd0 };	//R7 => Fil
 	41: oInstruction = { `STO ,`R4, 16'd191 };	//R4 => Limite Col
@@ -97,9 +103,26 @@ begin
 	43: oInstruction = { `INC, `R7, `R7, 8'd0 };
 	44: oInstruction = { `BLE, `SALTO_3, `R7, `R5 };	
 
+	// // Salto_11
+	// 70: oInstruction = {`VGA ,`COLOR_YELLOW, `R6, `R7 };
+	// 71: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
+	// 71: oInstruction = { `BLE, `SALTO_11, `R7, `R2 };	//salta a la instruccion 5
+
+	// // Salto_12
+	// 73: oInstruction = {`VGA ,`COLOR_WHITE, `R6, `R7 };
+	// 74: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
+	// 75: oInstruction = { `BLE, `SALTO_12, `R7, `R3 };	//salta a la instruccion 5
+
+	// // Salto_13
+	// 76: oInstruction = {`VGA ,`COLOR_YELLOW, `R6, `R7 };
+	// 77: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
+	// 78: oInstruction = { `BLE, `SALTO_13, `R7, `R5 };	//salta a la instruccion 5
+
 	45: oInstruction = { `STO ,`R7, 16'd0 };	
 	46: oInstruction = { `INC, `R6, `R6, 8'd0 };
-	47: oInstruction = { `BLE, `SALTO_3, `R6, `R4 };	
+	47: oInstruction = { `BLE, `SALTO_3, `R6, `R4 };
+
+	//---------------CUARTA COLUMNA---------------	
 	
 	48: oInstruction = { `STO ,`R7, 16'd0 };	//R7 => Fil
 	49: oInstruction = { `STO ,`R4, 16'd255 };	//R4 => Limite Col
@@ -107,13 +130,27 @@ begin
 	// Salto_4
 	50: oInstruction = { `VGA, `COLOR_YELLOW	, `R6, `R7  };
 	51: oInstruction = { `INC, `R7, `R7, 8'd0 };
-	52: oInstruction = { `BLE, `SALTO_4, `R7, `R5 };	
+	52: oInstruction = { `BLE, `SALTO_4, `R7, `R5 };
+
+	// // Salto_14
+	// 53: oInstruction = {`VGA ,`COLOR_WHITE, `R6, `R7 };
+	// 54: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
+	// 55: oInstruction = { `BLE, `SALTO_8, `R7, `R2 };	//salta a la instruccion 5
+
+	// // Salto_15
+	// 56: oInstruction = {`VGA ,`COLOR_YELLOW, `R6, `R7 };
+	// 57: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
+	// 58: oInstruction = { `BLE, `SALTO_9, `R7, `R3 };	//salta a la instruccion 5
+
+	// // Salto_16
+	// 59: oInstruction = {`VGA ,`COLOR_WHITE, `R6, `R7 };
+	// 60: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
+	// 61: oInstruction = { `BLE, `SALTO_10, `R7, `R5 };	//salta a la instruccion 5
+
+
 	53: oInstruction = { `STO ,`R7, 16'd0 };	
 	54: oInstruction = { `INC, `R6, `R6, 8'd0 };
 	55: oInstruction = { `BLE, `SALTO_4, `R6, `R5 };	
-
-	// 35: oInstruction = { `STO ,`R7, 16'd0 };	//R7 => Fil
-	// 36: oInstruction = { `STO ,`R4, 16'd319 };	//R4 => Limite Col
 
 	//quedese ahi
 	56: oInstruction = { `JMP, 8'd56, 16'b0 };
@@ -123,38 +160,6 @@ begin
 	default:
 		oInstruction = { `NOP ,24'd4000       };		//NOP
 	endcase	
-	
-	
-	/*
-	0: oInstruction = { `NOP ,24'd4000    };
-	1: oInstruction = { `STO , `R7, 16'b00 }; // Originalmente R7=1, ahora 2 para multiplicarse.
-	//1: oInstruction = { `STO , `R7, -16'b10 }; // Originalmente R7=1, ahora -2 para SMUL negatuva.
-	2: oInstruction = { `STO ,`R3,16'h1     }; 
-	3: oInstruction = { `STO, `R4,16'd1000 };
-	4: oInstruction = { `STO, `R5,16'd0     };  
-	5: oInstruction = { `STO, `R6,16'd2     };  
-	//5: oInstruction = { `STO, `R6,16'd3    }; // Se usa R6=3 para ejemplificar SMUL. 
-	
-//LOOP2:
-	6: oInstruction = { `LED ,8'b0,`R7,8'b0 };
-	7: oInstruction = { `STO ,`R1,16'h0     }; 	
-	//8: oInstruction = { `STO ,`R2,16'd65000 }; // Originalmente
-	8: oInstruction = { `STO ,`R2,16'd20000 };   // Se reduce el tiempo del loop para desplegar resultado
-//LOOP1:	
-	9: oInstruction = { `ADD ,`R1,`R1,`R3    }; 
-	10: oInstruction = { `BLE ,`LOOP1,`R1,`R2 }; 
-	
-	11: oInstruction = { `ADD ,`R5,`R5,`R3    };
-	12: oInstruction = { `BLE ,`LOOP2,`R5,`R4 };	
-	13: oInstruction = { `NOP ,24'd4000       }; 
-	14: oInstruction = { `KEY,`R7,16'd0  }; 
-	15: oInstruction = { `JMP ,  8'd2,16'b0   };
-
-	default:
-		oInstruction = { `LED ,  24'b10101010 };		//NOP
-	endcase	
-	*/
-	
 end
 	
 endmodule
