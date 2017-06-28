@@ -176,10 +176,10 @@ module IMUL2 (result, A, B);
 endmodule
 
 //----------------------------------------------------------------------
-
-module teclado (DATA, CLOCK, Clk, Reset, tecla);
+/*
+module teclado (DATA, CLOCK, /*Clk,Reset, tecla);
 	
-	input wire DATA, CLOCK, Clk, Reset;
+	input wire DATA, CLOCK, /*Clk, Reset;
 	output reg [7:0] tecla;
 	reg [31:0] timeCounter;
 	reg [10:0] rBits;
@@ -188,82 +188,143 @@ module teclado (DATA, CLOCK, Clk, Reset, tecla);
 	reg [4:0] contadorBit;
 	
 	//Clock
-	always @ ( negedge CLOCK) begin
-		if(contadorBit<11) begin
-		contadorBit <= contadorBit + 1;
-		rBits[contadorBit] <= DATA;
+	always @ ( negedge CLOCK  or posedge Reset) begin
+		if (Reset) begin
+			contadorBit<=0;
+			tecla <= 0;
+			rBits <= 0;
 		end
 		else begin
-			contadorBit <=  4'b0;
+			if(contadorBit<=9) begin
+			contadorBit <= contadorBit + 1;
+			rBits[contadorBit] <= DATA;
+			tecla <=0;
+			end
+			else begin
+				contadorBit <=  4'b0;
+				tecla <= rBits[9:1];
+			end
 		end
 	end
-	
-	always @ (posedge Clk) begin
-	
-		if (Reset) begin
-			currentState <= 0;
-			timeCounter <= 32'b0;
-		end
-		else begin
-			if (timeCounterReset) begin
-				timeCounterReset <= 1'b0;
-				timeCounter <= 32'b0;
-			end else
-				timeCounter <= timeCounter + 32'b1;
-				currentState <= nextState; 
-		end
-	
-		case(currentState)
-		/*
-			0: begin //IDLE
-				tecla <= 0;
-				if (CLOCK == 1) begin
-					if(timeCounter<=2500) begin
-						nextState <= 0;
-					end // timeCounter 
-					else begin
-						timeCounterReset <= 1'b1;
-						nextState <= 1;
-					end
-				end // CLOCK
-				else begin
-					timeCounterReset <= 1'b1;
-				end
-			end //end
-			*/
-			0: begin //START
-				tecla <= tecla;
-				if(DATA == 0) begin
-					nextState <= 1;
-				end //DATA
-				else begin
-					nextState <=0;
-				end
-			end //end
-			
-			1: begin //READ 11 bits
-				tecla <= tecla;
-				if (contadorBit <= 10) begin
-					nextState <= 1;
-					end
-				else begin
-					nextState <= 2;
-				end
-			end //end
-			
-			2: begin //WRITE
-				tecla <= rBits[9:1];
-				nextState <= 0;
-			end //end
-			
-			default: begin //IDLE
-				tecla <= 0;
-				timeCounter <= 0;
-				nextState <= 0;
-			end //end Default
-		endcase
-	end //end always
-	
 endmodule
+*/
 
+//----------------------------------------------------------------------
+// Módulo PS2 controller
+module PS2_Controller 
+(
+	input wire Reset,
+	input wire PS2_CLK,
+	input wire PS2_DATA,
+	output reg [7:0] XRedCounter,
+	output reg [7:0] YRedCounter,
+	output reg [2:0] ColorReg
+);
+
+`include "Defintions.v"
+
+reg [7:0] ScanCode;
+reg [8:0] rDataBuffer;
+reg Done, Read;
+reg [3:0] ClockCounter;
+reg rFlagF0, rFlagNoError;
+
+always @ (negedge PS2_CLK or posedge Reset) begin
+	if (Reset) begin
+		ClockCounter <= 0;
+		Read <= 1;
+		Done <= 0;
+		end
+	else begin
+		if (Read == 1'b1 && PS2_DATA == 1'b0) begin
+			Read <= 0;
+			Done <= 0;
+			end
+		else if (Read == 1'b0) begin
+			if (ClockCounter < 9) begin
+				ClockCounter <= ClockCounter + 1;
+				rDataBuffer <= {PS2_DATA, rDataBuffer[8:1]};
+				Done <= 0;
+				end
+			else begin
+				ClockCounter <= 1'b0;
+				Done <= 1;
+				ScanCode <= rDataBuffer[7:0];
+				Read <= 1;
+				if (^ScanCode == rDataBuffer[8])
+					rFlagNoError <= 1'b0;
+				else 
+					rFlagNoError <= 1'b1;
+				end
+			
+		end
+	end
+end
+
+always @ (posedge Done or posedge Reset) begin
+	if (Reset) begin
+		XRedCounter <= 8'b0;
+		YRedCounter <= 8'b0;
+		rFlagF0 <= 1'b0;
+		ColorReg <= 3'b1;
+		end
+	else begin
+		if (rFlagF0) begin
+			rFlagF0 <= 1'b0;
+		end
+		else
+		case (ScanCode)
+			`W: begin
+				YRedCounter <= YRedCounter - 8'd32;
+				XRedCounter <= XRedCounter;
+				rFlagF0 <= rFlagF0;
+				ColorReg <= ColorReg;
+			end
+			
+			`S: begin
+				YRedCounter <= YRedCounter + 8'd32;
+				XRedCounter <= XRedCounter;	
+				rFlagF0 <= rFlagF0;
+				ColorReg <= ColorReg;
+			end
+			
+			`A: begin
+				YRedCounter <= YRedCounter;
+				XRedCounter <= XRedCounter - 8'd32;	
+				rFlagF0 <= rFlagF0;
+				ColorReg <= ColorReg;
+			end
+			
+			`D: begin
+				YRedCounter <= YRedCounter;
+				XRedCounter <= XRedCounter + 8'd32;
+				rFlagF0 <= rFlagF0;
+				ColorReg <= ColorReg;
+			end
+			
+			8'hF0: begin	//Señal de finalizacion del PS2
+				YRedCounter <= YRedCounter;
+				XRedCounter <= XRedCounter;				
+				rFlagF0 <= 1'b1;
+				ColorReg <= ColorReg;
+			end
+			
+			8'h29: begin	//29 = Barra Espaciadora
+				ColorReg <= ColorReg + 3'b1;
+				YRedCounter <= YRedCounter;
+				XRedCounter <= XRedCounter;				
+				rFlagF0 <= rFlagF0;
+			end
+			
+			default: begin
+				YRedCounter <= YRedCounter;
+				XRedCounter <= XRedCounter;
+				rFlagF0 <= rFlagF0;
+				ColorReg <= ColorReg;
+			end
+		endcase
+	end
+end
+
+endmodule 
 
