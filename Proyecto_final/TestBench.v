@@ -39,8 +39,8 @@ module TestBench;
 
 	// Outputs
 	wire VGA_RED, VGA_GREEN, VGA_BLUE,  // Colores VGA
-    wire VGA_HSYNC, // Cambio de fila VGA
-	wire VGA_VSYNC // Return inicio VGA 
+    wire VGA_HSYNC; // Cambio de fila VGA
+	wire VGA_VSYNC; // Return inicio VGA 
 	wire [3:0] SF_DATA; // Datos para LCD
 
 	// Instantiate the Unit Under Test (UUT)
