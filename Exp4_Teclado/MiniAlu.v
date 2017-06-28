@@ -47,21 +47,7 @@ RAM_DUAL_READ_PORT DataRam
 
 //EXPERIMENTO 4 TECLADO
 
-//teclado tecladito( .DATA(PS2_DATA), .CLOCK(PS2_CLK), /*.Clk(Clock),*/ .Reset(Reset), .tecla(keyRead) );
-
-
-wire [7:0] wXRedCounter, wYRedCounter;
-wire [3:0] HolyCow;
-
-PS2_Controller PS2_Controller
-(
-	.Reset(Reset),
-	.PS2_CLK(PS2_CLK),
-	.PS2_DATA(PS2_DATA),
-	.ColorReg(HolyCow),
-	.XRedCounter(wXRedCounter),
-	.YRedCounter(wYRedCounter)
-);
+teclado tecladito( .DATA(PS2_DATA), .CLOCK(PS2_CLK), .Reset(Reset), .tecla(keyRead) );
 
 assign wIPInitialValue = (Reset) ? 8'b0 : wDestination;
 UPCOUNTER_POSEDGE IP

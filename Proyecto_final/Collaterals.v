@@ -112,40 +112,6 @@ UPCOUNTER_POSEDGE # (10) VERTICAL_COUNTER
 );
 
 endmodule
-<<<<<<< HEAD
-//----------------------------------------------------------------------
-
-module teclado (DATA, CLOCK, Reset, tecla);
-	
-	input wire DATA, CLOCK,  Reset;
-	output reg [7:0] tecla;
-	reg [31:0] timeCounter;
-	reg [10:0] rBits;
-	reg [3:0] nextState, currentState;
-	reg timeCounterReset;
-	reg [4:0] contadorBit;
-	
-	//Clock
-	always @ ( negedge CLOCK  or posedge Reset) begin
-		if (Reset) begin
-			contadorBit<=0;
-			tecla <= 0;
-			rBits <= 0;
-		end
-		else begin
-			if(contadorBit<=9) begin
-			contadorBit <= contadorBit + 1;
-			rBits[contadorBit] <= DATA;
-			tecla <=0;
-			end
-			else begin
-				contadorBit <=  4'b0;
-				tecla <= rBits[9:1];
-			end
-		end
-	end
-endmodule
-=======
 // //----------------------------------------------------------------------
 // // Módulo PS2 controller
 // module PS2_Controller 
@@ -264,4 +230,3 @@ endmodule
 // end
 
 // endmodule 
->>>>>>> bec53a151702b95d11ad79e6034131d9af22454c
