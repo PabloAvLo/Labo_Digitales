@@ -27,27 +27,39 @@ module TestBench;
 	// Inputs
 	reg Clock;
 	reg Reset;
-	reg PS2_CLK;
-	reg PS2_DATA;
+	
+	reg BTN_EAST; // Moverse Iquierda
+	reg BTN_NORTH; // Moverse Arriba
+	reg BTN_SOUTH; // Moverse Abajo
+	reg BTN_WEST; // Moverse Derecha
+	
+	reg ROT_CENTER; // Seleccionador
+	reg ROT_A; // Girar sentido Horario
+	reg ROT_B; // Girar sentido Anti Horario
 
 	// Outputs
-	wire oVGA_R; 
-	wire oVGA_G;
-	wire oVGA_B;
-	wire oH_sync;
-	wire oV_sync;
+	wire VGA_RED, VGA_GREEN, VGA_BLUE,  // Colores VGA
+    wire VGA_HSYNC, // Cambio de fila VGA
+	wire VGA_VSYNC // Return inicio VGA 
+	wire [3:0] SF_DATA; // Datos para LCD
 
 	// Instantiate the Unit Under Test (UUT)
 	MiniAlu uut (
 		.Clock(Clock), 
 		.Reset(Reset),
-		.PS2_CLK(PS2_CLK),
-		.PS2_DATA(PS2_DATA),
-		.VGA_RED(oVGA_R), 
-		.VGA_GREEN(oVGA_G),
-		.VGA_BLUE(oVGA_B),
-		.VGA_HSYNC(oH_sync),
-		.VGA_VSYNC(oV_sync)
+		.BTN_EAST(BTN_EAST),
+		.BTN_NORTH(BTN_NORTH),
+		.BTN_SOUTH(BTN_SOUTH),
+		.BTN_WEST(BTN_WEST),
+		.ROT_CENTER(ROT_CENTER),
+		.ROT_A(ROT_A)
+		.ROT_B(ROT_B),
+		.VGA_RED(VGA_RED), 
+		.VGA_GREEN(VGA_GREEN),
+		.VGA_BLUE(VGA_BLUE),
+		.VGA_HSYNC(VGA_HSYNC),
+		.VGA_VSYNC(VGA_VSYNC),
+		.SF_DATA(SF_DATA)
 	);
 	
 	always

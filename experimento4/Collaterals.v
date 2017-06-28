@@ -183,16 +183,18 @@ endmodule
 // EXPERIMENTO 4: VGA
 //---------------------------------------------------------------------
 
-module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2:0]);
+module VGA_SYNC (oVsync, oHsync, oR, oG, oB, iRed, iGreen, iBlue, CLK, Reset); //, iColors[2:0]);
 
 	reg [19:0] oVsync_Timer;
 	reg [11:0] oHsync_Timer;
 	
 	output reg oVsync = 1;
 	output reg oHsync = 1;
-	output reg oRed;
-	output reg oGreen;
-	output reg oBlue ;
+	output reg oR, oG, oB;
+	
+	input wire iRed;
+	input wire iGreen;
+	input wire iBlue ;
 
 	input wire Reset;
 	input wire CLK;
@@ -210,9 +212,9 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2
 			
 			oVsync <= 1;
 			oHsync <= 1;
-			oRed <= 0;
-			oGreen <= 0;
-			oBlue <= 0;
+			oR <= iRed;
+			oG <= iGreen;
+			oB <= iBlue;
 
 			counter_Hsync <= 0; 
 			vga_state <= 0;
@@ -225,9 +227,9 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2
 				oHsync_Timer <= 10'b0;
 				oVsync <= 1'b1;
 				oHsync <= 1'b1;
-				oRed <= 0;
-				oGreen <= 0;
-				oBlue <= 0;
+				oR <= iRed;
+				oG <= iGreen;
+				oB <= iBlue;
 				counter_Hsync <= 0;
 				vga_state <= 1;
 			end //end 0
@@ -237,9 +239,9 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2
 				oVsync_Timer <= oVsync_Timer;
 				oVsync <= 1'b1;
 				oHsync <= 1'b1;
-				oRed <= 0;
-				oGreen <= 0;
-				oBlue <= 0;
+				oR <= iRed;
+				oG <= iGreen;
+				oB <= iBlue;
 				
 				counter_Hsync <= counter_Hsync;
 				
@@ -258,9 +260,9 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2
 				oVsync_Timer <= oVsync_Timer;
 				oVsync <= 1'b1;
 				oHsync <= 1'b1;
-				oRed <= 1;
-				oGreen <= 0;
-				oBlue <= 0;
+				oR <= iRed;
+				oG <= iGreen;
+				oB <= iBlue;
 				
 				counter_Hsync <= counter_Hsync;
 				
@@ -278,9 +280,9 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2
 				//oVsync_Timer <= 10'b0;
 				oVsync_Timer <= oVsync_Timer;
 				oVsync <= 1'b1;
-				oRed <= 0;
-				oGreen <= 0;
-				oBlue <= 0;
+				oR <= iRed;
+				oG <= iGreen;
+				oB <= iBlue;
 					
 				if(oHsync_Timer <15)begin					
 					oHsync_Timer <= oHsync_Timer +1;
@@ -307,9 +309,9 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2
 				//oVsync_Timer <= 10'b0;
 				oVsync_Timer <= oVsync_Timer;
 				oVsync <= 1'b1;
-				oRed <= 0;
-				oGreen <= 0;
-				oBlue <= 0;	
+				oR <= iRed;
+				oG <= iGreen;
+				oB <= iBlue;	
 				
 				if(oHsync_Timer <95)begin					
 					oHsync_Timer <= oHsync_Timer +1;
@@ -328,9 +330,9 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2
 		
 			5: begin //T_FP de VSyn
 					oHsync <= 1'b1;
-					oRed <= 0;
-					oGreen <= 0;
-					oBlue <= 0;
+					oR <= iRed;
+					oG <= iGreen;
+					oB <= iBlue;
 				
 					counter_Hsync <= counter_Hsync;
 					oHsync_Timer <= oHsync_Timer;
@@ -349,9 +351,9 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2
 			
 			6: begin //PW de VSyn
 				oHsync <= 1'b1;
-				oRed <= 0;
-				oGreen <= 0;
-				oBlue <= 0;
+				oR <= iRed;
+				oG <= iGreen;
+				oB <= iBlue;
 				
 				counter_Hsync <= 0;
 				oHsync_Timer <= 0;
@@ -371,9 +373,9 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2
 			7: begin //T_BP de VSyn
 				oVsync <= 1'b1;
 				oHsync <= 1'b1;
-				oRed <= 0;
-				oGreen <= 0;
-				oBlue <= 0;
+				oR <= iRed;
+				oG <= iGreen;
+				oB <= iBlue;
 				
 				counter_Hsync <= counter_Hsync;
 				oHsync_Timer <= oHsync_Timer;
@@ -390,3 +392,35 @@ module VGA_SYNC (oVsync, oHsync, oRed, oGreen, oBlue, CLK, Reset); //, iColors[2
 		endcase
 	end //end always @ posedge
 endmodule
+
+//----------------------------------------------------------------------
+// EXPERIMENTO 4: TECLADO
+//---------------------------------------------------------------------
+
+module SP2 (CLK, oPS2D); //, iColors[2:0]);
+	
+	output reg CLK;
+	output reg oPS2D;
+
+	always @ (posedge CLK) begin
+	if(CLK) begin
+		if(oPS2D) begin
+		
+		
+		
+		end
+		else begin
+		
+		
+		end
+	end
+	else begin 
+		
+		
+	end
+
+	
+			
+
+	end // always
+endmodule // end SP2	

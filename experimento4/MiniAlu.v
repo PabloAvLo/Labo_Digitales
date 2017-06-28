@@ -6,7 +6,7 @@ module MiniAlu
  input wire Clock,
  input wire Reset,
  output wire [7:0] oLed,
- output wire VGA_RED, VGA_GREEN, VGA_BLUE, VGA_VSYNC, VGA_HSYNC
+ output wire VGA_RED, VGA_GREEN, VGA_BLUE, VGA_VSYNC, VGA_HSYNC, PS2_CLK, PS2_DATA
 );
 
 wire [15:0]  wIP,wIP_temp;
@@ -57,21 +57,21 @@ RAM_DUAL_READ_PORT DataRam
 
 //**************** EXPERIMENTO 4 *************************
 
-RAM_SINGLE_READ_PORT # (3 ,24 ,640*480 ) VideoMemory // Memoria de 307200 posiciones de 24b de instruccion y 3b de datos (RGB).
+RAM_SINGLE_READ_PORT # (3 ,24,  307200) VideoMemory // Memoria de 640*480 posiciones de 24b de instruccion y 3b de datos (RGB).
 (
 . Clock ( Clock ) ,
 . iWriteEnable ( rVGAWriteEnable ) ,
 . iReadAddress ( 24'b0 ) ,
 . iWriteAddress ( {wSourceData1 [7:0] , wSourceData0[7:0]} ) ,
 . iDataIn ( wInstruction [23:21] ),
-. oDataOut ( {oVGA_R,oVGA_G,oVGA_B} )
+. oDataOut ( {oVGA_R, oVGA_G, oVGA_B} )
 ) ;
 
 
-VGA_SYNC maquinita (.oVsync(VGA_VSYNC) , .oHsync(VGA_HSYNC), .oRed(VGA_RED), .oGreen(VGA_GREEN), .oBlue(VGA_BLUE), .CLK(clk_25Mhz), .Reset(Reset) );
-//assign VGA_RED = 1;
-//assign VGA_GREEN = 1;
-//assign VGA_BLUE = 1;
+VGA_SYNC maquinita (.oVsync(VGA_VSYNC) , .oHsync(VGA_HSYNC), .oR(VGA_RED), .oG(VGA_GREEN), .oB(VGA_BLUE), .iRed(1'b1), .iGreen(1'b0), .iBlue(1'b0), .CLK(clk_25Mhz), .Reset(Reset) );
+// VGA_SYNC maquinita (.oVsync(VGA_VSYNC) , .oHsync(VGA_HSYNC), .oR(VGA_RED), .oG(VGA_GREEN), .oB(VGA_BLUE), .iRed(oVGA_R), .iGreen(oVGA_G), .iBlue(oVGA_B), .CLK(clk_25Mhz), .Reset(Reset) );
+
+SP2 tecladito (.CLK(PS2_CLK), .oPS2D(PS2_DATA));
 
 
 //*******************************************************
@@ -256,9 +256,6 @@ begin
 		rFFLedEN     <= 1'b0;
 		rBranchTaken <= 1'b0;
 		rVGAWriteEnable <= 1'b1;
-		//VGA_RED =
-		//VGA_GREEN =
-		//VGA_BLUE =
 	end
 	
 		//-------------------------------------  
