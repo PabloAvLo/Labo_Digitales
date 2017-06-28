@@ -1,7 +1,3 @@
-//Mauricio José Valverde Monge A76674
-//Francisco Andrés Vargas Piedra A76821
-//RAM.v Modificado para Laboratorio de Circuitos Digitales I
-
 `timescale 1ns / 1ps
 
 // RAM para almacenar el contenido que se imprimirá en la pantalla

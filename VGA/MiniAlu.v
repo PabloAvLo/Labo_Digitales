@@ -1,7 +1,3 @@
-//Mauricio José Valverde Monge A76674
-//Francisco Andrés Vargas Piedra A76821
-//MiniAlu.v Modificado para Laboratorio de Circuitos Digitales I
-
 `timescale 1ns / 1ps
 `include "Defintions.v"
 
@@ -29,8 +25,7 @@ wire wVGA_R, wVGA_G, wVGA_B;
 
 wire [9:0] wH_counter,wV_counter;
 wire [7:0] wH_read, wV_read;
-assign wH_read = (wH_counter >= 240 && wH_counter <= 496) ? (wH_counter - 240) : 8'd0;
-assign wV_read = (wV_counter >= 141 && wV_counter <= 397) ? (wV_counter - 141) : 8'd0;
+
 
 reg rRetCall;
 reg [7:0] rDirectionBuffer;
@@ -102,15 +97,15 @@ always @ (posedge Clock_lento) begin
 end
 
 
-PS2_Controller PS2_Controller
-(
-	.Reset(Reset),
-	.PS2_CLK(FClock),
-	.PS2_DATA(FData),
-	.ColorReg(HolyCow),
-	.XRedCounter(wXRedCounter),
-	.YRedCounter(wYRedCounter)
-);
+// PS2_Controller PS2_Controller
+// (
+// 	.Reset(Reset),
+// 	.PS2_CLK(FClock),
+// 	.PS2_DATA(FData),
+// 	.ColorReg(HolyCow),
+// 	.XRedCounter(wXRedCounter),
+// 	.YRedCounter(wYRedCounter)
+// );
 
 ROM InstructionRom 
 (
@@ -131,7 +126,10 @@ RAM_DUAL_READ_PORT # (16, 3, 8) DataRam
 	.oDataOut1(     wSourceData1 )
 );
 
-// Instancia RAM para contenido de pantalla
+
+assign wH_read = (wH_counter >= 242 && wH_counter <= 498) ? (wH_counter - 240) : 8'd0;
+assign wV_read = (wV_counter >= 142 && wV_counter <= 398) ? (wV_counter - 142) : 8'd0;
+// Memoria ram para video
 RAM_SINGLE_READ_PORT # (3,16,65535) VideoMemory
 (
 	.Clock(Clock),

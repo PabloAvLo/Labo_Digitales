@@ -1,7 +1,3 @@
-//Mauricio José Valverde Monge A76674
-//Francisco Andrés Vargas Piedra A76821
-//Defintions.v Modificado para Laboratorio de Circuitos Digitales I
-
 `timescale 1ns / 1ps
 `ifndef DEFINTIONS_V
 `define DEFINTIONS_V
