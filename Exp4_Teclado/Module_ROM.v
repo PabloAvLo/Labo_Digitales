@@ -33,11 +33,6 @@ begin
 	11: oInstruction = { `ADD ,`R5,`R5,`R3    };
 	12: oInstruction = { `BLE ,`LOOP2,`R5,`R4 };	
 	13: oInstruction = { `NOP ,24'd4000       }; 
-	//14: oInstruction = { `ADD ,`R7,`R7,`R3    };
-	//14: oInstruction = { `SUB ,`R7,`R7,`R3    }; //EJERCICIO 1.2
-	//14: oInstruction = { `SMUL,`R7,`R7,`R6  }; //EJERCICIO 2.1
-	//14: oInstruction = { `IMUL,`R7,`R7,`R6  }; //EJERCICIO 2.2
-	//14: oInstruction = { `IMUL2,`R7,`R7,`R6  }; //EJERCICIO 2.4
 	14: oInstruction = { `KEY,`R7,16'd0  }; 
 	15: oInstruction = { `JMP ,  8'd2,16'b0   };
 

@@ -68,9 +68,77 @@ module TestBench;
 		Reset = 1;
 		#50
 		Reset = 0;
+		#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 0;
+		PS2_DATA = 0;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
+				#50
+		PS2_CLK = 1;
+		PS2_DATA = 1;
         
 		// Add stimulus here
-
 	end
       
 endmodule

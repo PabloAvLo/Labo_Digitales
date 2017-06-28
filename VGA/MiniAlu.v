@@ -36,7 +36,8 @@ reg rRetCall;
 reg [7:0] rDirectionBuffer;
 wire [7:0] wRetCall;
 wire [7:0] wXRedCounter, wYRedCounter;
-wire [3:0] HolyCow;
+wire [7:0] keyRead;
+wire [3:0] ColorChange;
 
 // Definición del clock de 25 MHz
 wire Clock_lento; // Clock con frecuencia de 25 MHz
@@ -78,13 +79,14 @@ VGA_controller VGA_controlador
 	.iXRedCounter(wXRedCounter),
 	.iYRedCounter(wYRedCounter),
 	.iVGA_RGB({wVGA_R,wVGA_G,wVGA_B}),
-	.iColorCuadro(HolyCow),
+	.iColorCuadro(ColorChange),
 	.oVGA_RGB({VGA_RED, VGA_GREEN, VGA_BLUE}),
 	.oHsync(VGA_HSYNC),
 	.oVsync(VGA_VSYNC),
 	.oVcounter(wV_counter),
 	.oHcounter(wH_counter)
 );
+/*
 reg [7:0] Filter;
 reg FClock;
 always @ (posedge Clock_lento) begin
@@ -100,17 +102,18 @@ always @ (posedge Clock_lento) begin
 	if (FilterData == 8'hFF) FData = 1'b1;
 	if (FilterData == 8'd0) FData = 1'b0;
 end
+*/
+//EXPERIMENTO 4 TECLADO
 
-
-PS2_Controller PS2_Controller
-(
-	.Reset(Reset),
-	.PS2_CLK(FClock),
-	.PS2_DATA(FData),
-	.ColorReg(HolyCow),
+teclado tecladito( 
+	.DATA(PS2_DATA), 
+	.CLOCK(PS2_CLK), 
+	.Reset(Reset), 
+	.tecla(keyRead) 
+/* .ColorReg(ColorChange),
 	.XRedCounter(wXRedCounter),
-	.YRedCounter(wYRedCounter)
-);
+	.YRedCounter(wYRedCounter) */);
+
 
 ROM InstructionRom 
 (
@@ -300,6 +303,18 @@ begin
 		rVGAWriteEnable <= 1'b1;
 		rRetCall <= 1'b0;
 	end
+	
+	//-------------------------------------
+	//Ejercicio 4.2: Definicion
+	//-------------------------------------
+	`KEY:
+	begin
+		rFFLedEN     <= 1'b0;
+		rBranchTaken <= 1'b0;
+		rWriteEnable <= 1'b1;
+		rResult <= keyRead;
+	end
+	
 	//-------------------------------------
 	default:
 	begin
