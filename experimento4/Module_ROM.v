@@ -41,10 +41,11 @@ begin
 	
 	//******** EXPERIMENTO 4 ************************
 	14: oInstruction = { `VGA, `COLOR_GREEN, `R4, `R1 } ;
-	15: oInstruction = { `VGA, `COLOR_RED, `R4, `R1 } ;
-	16: oInstruction = { `VGA, `COLOR_MAGENTA, `R4, `R1 } ;
-	17: oInstruction = { `VGA, `COLOR_BLUE, `R4, `R1 } ;
-	18: oInstruction = { `VGA, `COLOR_BLACK, `R4, `R1 } ;
+	15: oInstruction = { `NOP ,24'd4000       }; 
+	//15: oInstruction = { `VGA, `COLOR_RED, `R4, `R1 } ;
+	//16: oInstruction = { `VGA, `COLOR_MAGENTA, `R4, `R1 } ;
+	//17: oInstruction = { `VGA, `COLOR_BLUE, `R4, `R1 } ;
+	//18: oInstruction = { `VGA, `COLOR_BLACK, `R4, `R1 } ;
 	19: oInstruction = { `JMP ,  8'd2,16'b0   };
 	
 	
