@@ -1,0 +1,378 @@
+`timescale 1ns / 1ps
+`include "Defintions.v"
+
+module MiniAlu
+(
+// Inputs
+ input wire Clock,
+ input wire Reset,
+ input wire BTN_EAST, // Moverse Iquierda
+ input wire BTN_NORTH, // Moverse Arriba
+ input wire BTN_SOUTH, // Moverse Abajo
+ input wire BTN_WEST, // Moverse Derecha
+ input wire ROT_CENTER, // Seleccionador
+ input wire ROT_A, // Girar sentido Horario
+ input wire ROT_B, // Girar sentido Anti Horario
+
+// Outputs
+ output wire VGA_RED, VGA_GREEN, VGA_BLUE,  // Colores VGA
+ output wire VGA_HSYNC, // Cambio de fila VGA
+ output wire VGA_VSYNC, // Return inicio VGA 
+ 
+ output wire LCD_E, // LCD Enable
+ output wire LCD_RS, // LCD 
+ output wire LCD_RW, // LCD
+ output wire [3:0] SF_DATA, // Datos para LCD
+ output wire [7:0] oLed, //LEDs
+ output wire [4:0] oBTN //Boton presionado
+ 
+);
+
+wire [15:0] wIP,wIP_temp; //Wires de 16 bits para Dirección
+reg         rWriteEnable,rBranchTaken; //Registros de 1 bit
+wire [27:0] wInstruction;  /*Wire de 28 bits para instrucciones. Conecta al registro de Module_ROM*/									
+wire [3:0]  wOperation;    
+reg [15:0]  rResult;
+wire [7:0]  wSourceAddr0,wSourceAddr1,wDestination;
+wire [15:0] wSourceData0,wSourceData1,wIPInitialValue,wImmediateValue;
+
+reg rVGAWriteEnable;
+wire wVGA_R, wVGA_G, wVGA_B;
+
+wire [9:0] wH_counter,wV_counter;
+wire [7:0] wH_read, wV_read;
+
+
+reg rRetCall;
+reg [7:0] rDirectionBuffer;
+wire [7:0] wRetCall;
+wire [7:0] wXRedCounter, wYRedCounter;
+wire [3:0] HolyCow;
+
+// Definición del clock de 25 MHz
+wire Clock_lento; // Clock con frecuencia de 25 MHz
+
+// Se crea una entrada de reset especial 
+// para el clock lento, ya que se quiere
+// que se inicie desde el puro inicio.
+reg rflag;
+reg Reset_clock;
+always @ (posedge Clock)
+begin
+	if (rflag) begin
+		Reset_clock <= 0;
+	end
+	else begin
+		Reset_clock <= 1;
+		rflag <= 1;
+	end
+end
+
+// Instancia para crear el clock lento 
+wire wClock_counter;
+assign Clock_lento = wClock_counter;
+UPCOUNTER_POSEDGE # ( 1 ) Slow_clock
+(
+.Clock(   Clock                ), 
+.Reset(   Reset_clock ),
+.Initial( 1'd0 ), 
+.Enable(  1'b1                 ),
+.Q(       wClock_counter             )
+);
+// Fin de la implementación del reloj lento 
+
+// Instancia del controlador de VGA
+VGA_controller VGA_controlador
+(
+	.Clock_lento(Clock_lento),
+	.Reset(Reset),
+	.iXRedCounter(wXRedCounter),
+	.iYRedCounter(wYRedCounter),
+	.iVGA_RGB({wVGA_R,wVGA_G,wVGA_B}),
+	.iColorCuadro(HolyCow),
+	.oVGA_RGB({VGA_RED, VGA_GREEN, VGA_BLUE}),
+	.oHsync(VGA_HSYNC),
+	.oVsync(VGA_VSYNC),
+	.oVcounter(wV_counter),
+	.oHcounter(wH_counter)
+);
+
+
+ROM InstructionRom 
+(
+	.iAddress(     wIP          ),	
+	.oInstruction( wInstruction )
+);
+
+// Instancia RAM de instrucciones y registros
+RAM_DUAL_READ_PORT # (16, 3, 8) DataRam
+(
+	.Clock(         Clock        ),
+	.iWriteEnable(  rWriteEnable ),
+	.iReadAddress0( wInstruction[7:0] ),
+	.iReadAddress1( wInstruction[15:8] ),
+	.iWriteAddress( wDestination ),
+	.iDataIn(       rResult      ),
+	.oDataOut0(     wSourceData0 ),
+	.oDataOut1(     wSourceData1 )
+);
+
+
+assign wH_read = (wH_counter >= 242 && wH_counter <= 498) ? (wH_counter - 240) : 8'd0;
+assign wV_read = (wV_counter >= 142 && wV_counter <= 398) ? (wV_counter - 142) : 8'd0;
+
+// Memoria ram para video
+RAM_SINGLE_READ_PORT # (3,16,65535) VideoMemory
+(
+	.Clock(Clock),
+	.iWriteEnable( rVGAWriteEnable ),
+	.iReadAddress( {wH_read,wV_read} ), // Columna, fila
+	.iWriteAddress( {wSourceData1[7:0],wSourceData0[7:0]} ), // Columna, fila
+	.iDataIn(wDestination[2:0]),
+	.oDataOut( {wVGA_R,wVGA_G,wVGA_B} )
+);
+
+always @ (posedge Clock)
+begin
+	if (wOperation == `CALL)
+		rDirectionBuffer <= wIP_temp;
+end
+
+assign wIP = (rBranchTaken) ? wIPInitialValue : wIP_temp;
+assign wIPInitialValue = (Reset) ? 8'b0 : wRetCall;
+assign wRetCall = (rRetCall) ? rDirectionBuffer : wDestination;
+
+UPCOUNTER_POSEDGE IP
+(
+.Clock(   Clock                ), 
+.Reset(   Reset | rBranchTaken ),
+.Initial( wIPInitialValue + 16'b1  ),
+.Enable(  1'b1                 ),
+.Q(       wIP_temp             )
+);
+
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 4 ) FFD1 //FFs de Instrucción
+(
+	.Clock(Clock),
+	.Reset(Reset),
+	.Enable(1'b1),
+	.D(wInstruction[27:24]),
+	.Q(wOperation)
+);
+
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD2 //FFs de Source2
+(
+	.Clock(Clock),
+	.Reset(Reset),
+	.Enable(1'b1),
+	.D(wInstruction[7:0]),
+	.Q(wSourceAddr0)
+);
+
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD3 //FFs de Source1
+(
+	.Clock(Clock),
+	.Reset(Reset),
+	.Enable(1'b1),
+	.D(wInstruction[15:8]),
+	.Q(wSourceAddr1)
+);
+
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD4 //FFs de Destino
+(
+	.Clock(Clock),
+	.Reset(Reset),
+	.Enable(1'b1),
+	.D(wInstruction[23:16]),
+	.Q(wDestination)
+);
+
+assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
+
+
+reg [256:0] 	chars = "Atrapa al Topo                  ";
+reg [256:0] 	charsTemp = "Puntaje:                        ";
+
+//chars tiene que ser de 32 caracteres 
+LCD display (
+	.clk(Clock), 
+	.chars(chars), 
+	.lcd_rs(LCD_RS),
+	.lcd_rw(LCD_RW), 
+	.lcd_e(LCD_E), 
+	.lcd_4(SF_DATA[0]), 
+	.lcd_5(SF_DATA[1]),
+	.lcd_6(SF_DATA[2]), 
+	.lcd_7(SF_DATA[3])
+);
+	
+//Instancia de lectura de los botones
+BTN BTN_CHECK (
+	.BTN_UP(BTN_NORTH),
+	.BTN_DOWN(BTN_SOUTH),
+	.BTN_LEFT(BTN_EAST),
+	.BTN_RIGHT(BTN_WEST),
+	.BTN_CNTR(ROT_CENTER),
+	.CLK(Clock),
+	.Reset(Reset),
+	.BTN(oBTN)
+);
+
+//LEDs
+reg rFFLedEN;
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FF_LEDS
+(
+	.Clock(Clock),
+	.Reset(Reset),
+	.Enable( rFFLedEN ),
+	.D( wSourceData1 ),
+	.Q( oLed    )
+);
+
+always @ ( * )
+begin
+	case (wOperation)
+	//-------------------------------------
+	`BGE:
+	begin
+		rFFLedEN     <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
+		rWriteEnable <= 1'b0;
+		rResult      <= 0;
+		rRetCall <= 1'b0;
+		if (wSourceData1 >= wSourceData0 )
+			rBranchTaken <= 1'b1;
+		else
+			rBranchTaken <= 1'b0;
+	end
+	//-------------------------------------
+	`BLE:
+	begin
+		rFFLedEN     <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
+		rWriteEnable <= 1'b0;
+		rResult      <= 0;
+		rRetCall <= 1'b0;
+		if (wSourceData1 <= wSourceData0 )
+			rBranchTaken <= 1'b1;
+		else
+			rBranchTaken <= 1'b0;
+	end
+	//-------------------------------------
+	`JMP:
+	begin
+		rFFLedEN     <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
+		rWriteEnable <= 1'b0;
+		rResult      <= 0;
+		rBranchTaken <= 1'b1;
+		rRetCall <= 1'b0;
+	end
+	//-------------------------------------	
+	`NOP:
+	begin
+		rFFLedEN     <= 1'b0;
+		rBranchTaken <= 1'b0;
+		rWriteEnable <= 1'b0;
+		rResult      <= 0;
+		rVGAWriteEnable <= 1'b0;
+		rRetCall <= 1'b0;
+	end
+	//-------------------------------------
+	`STO:
+	begin
+		rFFLedEN     <= 1'b0;
+		rWriteEnable <= 1'b1;
+		rBranchTaken <= 1'b0;
+		rResult      <= wImmediateValue;
+		rVGAWriteEnable <= 1'b0;
+		rRetCall <= 1'b0;
+	end
+	//-------------------------------------
+	// Instrucción de sumar 1
+	`INC:
+	begin
+		rFFLedEN     <= 1'b0;
+		rBranchTaken <= 1'b0;
+		rWriteEnable <= 1'b1;
+		rResult      <= wSourceData1 + 1;
+		rVGAWriteEnable <= 1'b0;
+		rRetCall <= 1'b0;
+	end
+	//-------------------------------------
+	`ADD:
+	begin
+		rFFLedEN     <= 1'b0;
+		rBranchTaken <= 1'b0;
+		rWriteEnable <= 1'b1;
+		rResult      <= wSourceData1 + wSourceData0;
+		rVGAWriteEnable <= 1'b0;
+		rRetCall <= 1'b0;
+	end
+	//--------------------------------------
+	`CALL:	//Nuevo
+	begin
+		rFFLedEN     <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
+		rWriteEnable <= 1'b0;
+		rResult      <= 0;
+		rBranchTaken <= 1'b1;
+		rRetCall <= 1'b0;
+	end
+	//--------------------------------------
+	`RET:		//Nuevo
+	begin
+		rFFLedEN     <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
+		rWriteEnable <= 1'b0;
+		rResult      <= 0;
+		rBranchTaken <= 1'b1;
+		rRetCall <= 1'b1;
+	end
+	//-------------------------------------
+	// Instrucción para escribir pixel a una posición específica	
+	`VGA:
+	begin
+		rFFLedEN     <= 1'b0;
+		rWriteEnable <= 1'b0;
+		rBranchTaken <= 1'b0;
+		rResult      <= 16'b0;
+		rVGAWriteEnable <= 1'b1;
+		rRetCall <= 1'b0;
+	end
+	//-------------------------------------
+	// Instrucción para escribir pixel a una posición específica	
+	`BTN:
+	begin
+		rFFLedEN     <= 1'b0;
+		rWriteEnable <= 1'b0;
+		rBranchTaken <= 1'b0;
+		rResult      <= {11'b0,oBTN}; //Pasa botón presionado
+		rVGAWriteEnable <= 1'b1;
+		rRetCall <= 1'b0;
+	end
+	//-------------------------------------
+	`LED:
+	begin
+		rFFLedEN     <= 1'b1;
+		rWriteEnable <= 1'b0;
+		rResult      <= 16'b0;
+		rBranchTaken <= 1'b0;
+		rVGAWriteEnable <= 1'b1;
+		rRetCall <= 1'b0;
+	end
+	//-------------------------------------
+	default:
+	begin
+		rFFLedEN     <= 1'b1;
+		rWriteEnable <= 1'b0;
+		rResult      <= 16'b0;
+		rBranchTaken <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
+		rRetCall <= 1'b0;
+	end	
+	//-------------------------------------	
+	endcase	
+end
+
+endmodule
