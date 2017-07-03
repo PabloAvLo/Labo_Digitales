@@ -272,9 +272,9 @@ module LCD(
 endmodule
 
 //----------------------------------------------------------------------
-// Module BTN
+// Module Button
 
-module BTN
+module Button
 (	input wire BTN_UP,
 	input wire BTN_DOWN,
 	input wire BTN_LEFT,
@@ -285,72 +285,27 @@ module BTN
 	output reg [4:0] BTN
 );
 	
-	reg [3:0] rCLKCounter;  //Contador de ciclos del reloj
-	reg [4:0] rBTN; 		//Registro con botón presionado
-	reg 	  rBTNListo;	//Se mantiene en 0 cuando el botón no ha sido validado
-	reg 	  rBTNPress;		//Indica si se presionó una tecla
+	reg [31:0] rCLKCounter;  //Contador de ciclos del reloj
 	
 	//Lógica principal
-	always @ (posedge CLK) begin
+	always @ (posedge CLK or posedge Reset) begin
 		rCLKCounter <= rCLKCounter + 1;
 		//Manejo del Reset
 		if (Reset) begin
 			rCLKCounter <= 0;
-			rBTN <= 0;
-			rBTNListo <= 0;
-			rBTNPress <= 0;
+			BTN <= 0;
 		end	//end Reset
 		//Control de los Botones
 		else begin 
 			//Verificar que se haya presionado algún botón
-			if (BTN_UP || BTN_DOWN || BTN_LEFT || BTN_RIGHT || BTN_CNTR) begin 
-				rBTNPress <= 1;
-			end
-			else begin
-				rBTNPress <= rBTNPress;
-			end //end Verificación botón presionado
-			
-			//Supresión de Rebotes
-			if (rBTNPress) begin //Algún botón presionado
-				if (rCLKCounter >= 8) begin //Supresión de rebotes
+			if ( BTN_UP || BTN_DOWN || BTN_LEFT || BTN_RIGHT || BTN_CNTR) begin 				
+				if(rCLKCounter >= 2000) begin 
+					BTN <= {BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_CNTR}; //Pasa dato del botón presionado
 					rCLKCounter <= 0;
-					if (BTN_UP || BTN_DOWN || BTN_LEFT || BTN_RIGHT || BTN_CNTR) begin //Si sigue presionado
-						rBTNListo <= 1; //Botón válido
-						rBTNPress <= rBTNPress;
-						rBTN <= {BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_CNTR}; //Pasa dato del botón presionado
-					end //if sigue presionado
-					else begin
-						rBTNListo <= 0;
-					end //else falsa alarma
-				end //if contador de ciclos
-				else begin
-					rCLKCounter <= rCLKCounter;
-					rBTNListo <= rBTNListo;
-					rBTNPress <= 0;
-				end //else contador sigue contando
-			end //if BTNPress
-			else begin//No hay botón presionado
-				rBTNPress <= 0;
-				rBTNListo <= 0;
-				rCLKCounter <= 0;
-				rBTN <= 0; //Limpia rBTN			
+				end			
+				else BTN <= 0;
 			end
-			
-			//Manejo salida dato del BTN
-			if (rBTNListo) begin //BTN está listo
-				BTN <= rBTN;
-				rBTNListo <=0; //Se asegura que haga esto solo una vez cuando el dato está listo y no lo envíe muchas veces
-				rBTNPress <= 0;
-				rCLKCounter <= 0;
-				rBTN <= rBTN;
-			end 
-			else begin //No hay BTN
-				rBTNListo <= rBTNListo;
-				rBTNPress <= rBTNPress;
-				rCLKCounter <= rCLKCounter;
-				rBTN <= rBTN;
-			end // end Manejo BTN
-		end //end Control Botones
-	end	//end Lógica principal
-	
+			else BTN <= 0;				
+		end	
+	end
 endmodule
