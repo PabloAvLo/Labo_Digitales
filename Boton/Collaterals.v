@@ -286,26 +286,46 @@ module Button
 );
 	
 	reg [31:0] rCLKCounter;  //Contador de ciclos del reloj
+	reg [4:0] rBTN; 		//Registro con botón presionado
+	reg [4:0] rBTNTemp;		//Temporal para BTN mientras se suprimen los rebotes
 	
 	//Lógica principal
 	always @ (posedge CLK or posedge Reset) begin
 		rCLKCounter <= rCLKCounter + 1;
+		
 		//Manejo del Reset
 		if (Reset) begin
 			rCLKCounter <= 0;
+			rBTN <= 0;
+			rBTNTemp <= 0;
 			BTN <= 0;
 		end	//end Reset
+				
 		//Control de los Botones
 		else begin 
 			//Verificar que se haya presionado algún botón
-			if ( BTN_UP || BTN_DOWN || BTN_LEFT || BTN_RIGHT || BTN_CNTR) begin 				
-				if(rCLKCounter >= 2000) begin 
-					BTN <= {BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_CNTR}; //Pasa dato del botón presionado
-					rCLKCounter <= 0;
-				end			
-				else BTN <= 0;
+			rBTN <= {BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_CNTR};
+			
+			if (rBTN != 0) begin
+			//if ( BTN_UP || BTN_DOWN || BTN_LEFT || BTN_RIGHT || BTN_CNTR) begin
+				rBTNTemp <= rBTN;
 			end
-			else BTN <= 0;				
-		end	
+			else begin
+				rBTNTemp <= rBTNTemp;
+			end
+			
+			if (rCLKCounter <= 1000) begin
+				rBTNTemp <= rBTNTemp;
+			end
+			else begin
+				rCLKCounter <= 0; //Reset contador de ciclos
+				if (rBTN == rBTNTemp) begin //Sigue pulsado el botón y no va a enviar basura
+					BTN <= rBTN;
+				end
+				else begin //Era basura
+					BTN <= 0;
+				end
+			end	
+		end //end Control Botone
 	end
 endmodule

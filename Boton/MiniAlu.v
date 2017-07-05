@@ -213,8 +213,8 @@ wire [4:0] oBTN; //Boton presionado
 Button BTN_CHECK (
 	.BTN_UP(BTN_NORTH),
 	.BTN_DOWN(BTN_SOUTH),
-	.BTN_LEFT(BTN_EAST),
-	.BTN_RIGHT(BTN_WEST),
+	.BTN_LEFT(BTN_WEST),
+	.BTN_RIGHT(BTN_EAST),
 	.BTN_CNTR(ROT_CENTER),
 	.CLK(Clock),
 	.Reset(Reset),
@@ -228,7 +228,8 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FF_LEDS
 	.Clock(Clock),
 	.Reset(Reset),
 	.Enable( rFFLedEN ),
-	.D( wSourceData1 ),
+	.D( oBTN ),
+	//.D( wSourceData1 ),
 	.Q( oLed    )
 );
 
