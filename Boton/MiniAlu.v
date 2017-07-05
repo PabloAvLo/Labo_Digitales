@@ -189,24 +189,7 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD4 //FFs de Destino
 
 assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
 
-
-reg [256:0] 	chars = "Atrapa al Topo                  ";
-reg [256:0] 	charsTemp = "Puntaje:                        ";
-
-//chars tiene que ser de 32 caracteres 
-LCD display (
-	.clk(Clock), 
-	.chars(chars), 
-	.lcd_rs(LCD_RS),
-	.lcd_rw(LCD_RW), 
-	.lcd_e(LCD_E), 
-	.lcd_4(SF_DATA[0]), 
-	.lcd_5(SF_DATA[1]),
-	.lcd_6(SF_DATA[2]), 
-	.lcd_7(SF_DATA[3])
-);
-	
-//Instancia de lectura de los botones
+//************ Lectura Botones *******************
 
 wire [4:0] oBTN; //Boton presionado
 
@@ -221,6 +204,56 @@ Button BTN_CHECK (
 	.BTN(oBTN)
 );
 
+//************** LCD Logica ********************
+
+reg [7:0] digito1;
+reg [7:0] digito2;
+reg [256:0] chars;
+
+always @ (posedge Clock)
+begin
+	if(Reset) begin
+		chars = "Atrapa al Topo                  ";
+		digito1 <= 8'b00110000;
+		digito2 <= 8'b00110000;
+	end
+	
+	else begin
+		if (oBTN==1)begin
+		
+			if(digito1 <48 || digito1 >56) begin
+				digito1 <= 8'b00110000;
+				
+				if(digito2 <48 || digito2 >56) begin
+					digito2 <= 8'b00110000;
+				end
+				else begin
+					digito2 <= digito2 +1;
+				end
+			end	
+				
+			else begin 
+				digito1 <= digito1 + 1;
+			end		
+			
+			chars = { "Atrapa al Topo!!  Puntaje: ", digito1, digito2, "   " };
+		end
+	end	
+end
+
+//****************** LCD  ********************
+LCD display (
+	.clk(Clock), 
+	.chars(chars), 
+	.lcd_rs(LCD_RS),
+	.lcd_rw(LCD_RW), 
+	.lcd_e(LCD_E), 
+	.lcd_4(SF_DATA[0]), 
+	.lcd_5(SF_DATA[1]),
+	.lcd_6(SF_DATA[2]), 
+	.lcd_7(SF_DATA[3])
+);
+	
 //LEDs
 reg rFFLedEN;
 FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FF_LEDS
@@ -349,9 +382,19 @@ begin
 	`BTN:
 	begin
 		rFFLedEN     <= 1'b0;
-		rWriteEnable <= 1'b0;
+		rWriteEnable <= 1'b1;
 		rBranchTaken <= 1'b0;
 		rResult     <= wSourceData1 + oBTN; //Pasa botón presionado
+		rVGAWriteEnable <= 1'b0;
+		rRetCall <= 1'b0;
+	end
+	//-------------------------------------
+	// Instrucción de sumar 1
+	`INC:
+	begin
+		rBranchTaken <= 1'b0;
+		rWriteEnable <= 1'b1;
+		rResult      <= wSourceData1 + 1;
 		rVGAWriteEnable <= 1'b0;
 		rRetCall <= 1'b0;
 	end
