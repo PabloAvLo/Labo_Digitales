@@ -43,9 +43,24 @@ module TABLERO_TOPOS(
 	input wire PONER_TOPO,
 	input wire SELECT,
 	input wire ENTER,
-	input wire [3:0] DIR_RGB,
+	//input wire [3:0] DIR_RGB,
 	output wire HIT,
-	output wire [7:0] oRGB
+	output wire [7:0] oRGB0,
+	output wire [7:0] oRGB1,
+	output wire [7:0] oRGB2,
+	output wire [7:0] oRGB3,
+	output wire [7:0] oRGB4,
+	output wire [7:0] oRGB5,
+	output wire [7:0] oRGB6,
+	output wire [7:0] oRGB7,
+	output wire [7:0] oRGB8,
+	output wire [7:0] oRGB9,
+	output wire [7:0] oRGB10,
+	output wire [7:0] oRGB11,
+	output wire [7:0] oRGB12,
+	output wire [7:0] oRGB13,
+	output wire [7:0] oRGB14,
+	output wire [7:0] oRGB15
 	);
 
 	wire [2:0] RGB;
@@ -90,23 +105,38 @@ module TABLERO_TOPOS(
 	assign wS14 = (N_CELDA_SELECT == 14 && SELECT )? 1:0;
 	assign wS15 = (N_CELDA_SELECT == 15 && SELECT )? 1:0;
 
-	assign RGB = (DIR_RGB == 0)?  wRGB0 :
-			     (DIR_RGB == 1)?  wRGB1 :
-				 (DIR_RGB == 2)?  wRGB2 :
-				 (DIR_RGB == 3)?  wRGB3 :
-				 (DIR_RGB == 4)?  wRGB4 :
-				 (DIR_RGB == 5)?  wRGB5 :
-				 (DIR_RGB == 6)?  wRGB6 :
-				 (DIR_RGB == 7)?  wRGB7 :
-				 (DIR_RGB == 8)?  wRGB8 :
-				 (DIR_RGB == 9)?  wRGB9 :
-				 (DIR_RGB == 10)? wRGB10 :
-				 (DIR_RGB == 11)? wRGB11 :
-				 (DIR_RGB == 12)? wRGB12 :
-				 (DIR_RGB == 13)? wRGB13 :
-				 (DIR_RGB == 14)? wRGB14 : wRGB15;
+	// assign RGB = (DIR_RGB == 0)?  wRGB0 :
+	// 		     (DIR_RGB == 1)?  wRGB1 :
+	// 			 (DIR_RGB == 2)?  wRGB2 :
+	// 			 (DIR_RGB == 3)?  wRGB3 :
+	// 			 (DIR_RGB == 4)?  wRGB4 :
+	// 			 (DIR_RGB == 5)?  wRGB5 :
+	// 			 (DIR_RGB == 6)?  wRGB6 :
+	// 			 (DIR_RGB == 7)?  wRGB7 :
+	// 			 (DIR_RGB == 8)?  wRGB8 :
+	// 			 (DIR_RGB == 9)?  wRGB9 :
+	// 			 (DIR_RGB == 10)? wRGB10 :
+	// 			 (DIR_RGB == 11)? wRGB11 :
+	// 			 (DIR_RGB == 12)? wRGB12 :
+	// 			 (DIR_RGB == 13)? wRGB13 :
+	// 			 (DIR_RGB == 14)? wRGB14 : wRGB15;
 
-	assign oRGB = {5'b0,RGB}; 
+	assign oRGB0 = {5'b0,wRGB0}; 
+	assign oRGB1 = {5'b0,wRGB1};
+	assign oRGB2 = {5'b0,wRGB2};
+	assign oRGB3 = {5'b0,wRGB3};
+	assign oRGB4 = {5'b0,wRGB4};
+	assign oRGB5 = {5'b0,wRGB5};
+	assign oRGB6 = {5'b0,wRGB6};
+	assign oRGB7 = {5'b0,wRGB7};
+	assign oRGB8 = {5'b0,wRGB8};
+	assign oRGB9 = {5'b0,wRGB9};
+	assign oRGB10 = {5'b0,wRGB10};
+	assign oRGB11 = {5'b0,wRGB11};
+	assign oRGB12 = {5'b0,wRGB12};
+	assign oRGB13 = {5'b0,wRGB13};
+	assign oRGB14 = {5'b0,wRGB14};
+	assign oRGB15 = {5'b0,wRGB15};               
 
 	CELDA_TOPO C0( .reset(reset), .PONER_TOPO(iPT0),  .GOLPE(ENTER), .SELECT(wS0),  .HIT(oHC0),  .RGB(wRGB0));
 	CELDA_TOPO C1( .reset(reset), .PONER_TOPO(iPT1),  .GOLPE(ENTER), .SELECT(wS1),  .HIT(oHC1),  .RGB(wRGB1));

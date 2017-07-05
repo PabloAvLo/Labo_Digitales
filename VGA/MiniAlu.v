@@ -98,11 +98,41 @@ VGA_controller VGA_controlador
 	.oHcounter(wH_counter)
 );
 
-wire [7:0] wRGB;
+wire [7:0] wRGB0;
+wire [7:0] wRGB1;
+wire [7:0] wRGB2;
+wire [7:0] wRGB3;
+wire [7:0] wRGB4;
+wire [7:0] wRGB5;
+wire [7:0] wRGB6;
+wire [7:0] wRGB7;
+wire [7:0] wRGB8;
+wire [7:0] wRGB9;
+wire [7:0] wRGB10;
+wire [7:0] wRGB11;
+wire [7:0] wRGB12;
+wire [7:0] wRGB13;
+wire [7:0] wRGB14;
+wire [7:0] wRGB15;
 
 ROM InstructionRom 
 (
-	.iRGB(wRGB),
+	.iRGB0(wRGB0),
+	.iRGB1(wRGB1),
+	.iRGB2(wRGB2),
+	.iRGB3(wRGB3),
+	.iRGB4(wRGB4),
+	.iRGB5(wRGB5),
+	.iRGB6(wRGB6),
+	.iRGB7(wRGB7),
+	.iRGB8(wRGB8),
+	.iRGB9(wRGB9),
+	.iRGB10(wRGB10),
+	.iRGB11(wRGB11),
+	.iRGB12(wRGB12),
+	.iRGB13(wRGB13),
+	.iRGB14(wRGB14),
+	.iRGB15(wRGB15),
 	.iAddress(     wIP          ),	
 	.oInstruction( wInstruction )
 );
@@ -121,7 +151,7 @@ RAM_DUAL_READ_PORT # (16, 3, 8) DataRam
 );
 
 
-assign wH_read = (wH_counter >= 242 && wH_counter <= 498) ? (wH_counter - 240) : 8'd0;
+assign wH_read = (wH_counter >= 242 && wH_counter <= 496) ? (wH_counter - 240) : 8'd0;
 assign wV_read = (wV_counter >= 141 && wV_counter <= 397) ? (wV_counter - 141) : 8'd0;
 // Memoria ram para video
 RAM_SINGLE_READ_PORT # (3,16,65535) VideoMemory
@@ -211,14 +241,29 @@ LCD display (
 
 TABLERO_TOPOS tablero (
 					.reset(Reset),
-					.N_CELDA_PONER_TOPO(4'b0000),
-					.N_CELDA_SELECT(4'b1),
+					.N_CELDA_PONER_TOPO(4'b1001),
+					.N_CELDA_SELECT(4'b0000),
 					.PONER_TOPO(1'b1),
-					.SELECT(1'b0),
+					.SELECT(1'b1),
 					.ENTER(1'b0),
-					.DIR_RGB(),
+					//.DIR_RGB(),
 					.HIT(),
-					.oRGB(wRGB)
+					.oRGB0(wRGB0),
+					.oRGB1(wRGB1),
+					.oRGB2(wRGB2),
+					.oRGB3(wRGB3),
+					.oRGB4(wRGB4),
+					.oRGB5(wRGB5),
+					.oRGB6(wRGB6),
+					.oRGB7(wRGB7),
+					.oRGB8(wRGB8),
+					.oRGB9(wRGB9),
+					.oRGB10(wRGB10),
+					.oRGB11(wRGB11),
+					.oRGB12(wRGB12),
+					.oRGB13(wRGB13),
+					.oRGB14(wRGB14),
+					.oRGB15(wRGB15)
 					);
 	
 always @ ( * )
