@@ -38,9 +38,9 @@ module TestBench;
 	reg ROT_B; // Girar sentido Anti Horario
 
 	// Outputs
-	wire VGA_RED, VGA_GREEN, VGA_BLUE,  // Colores VGA
-    wire VGA_HSYNC, // Cambio de fila VGA
-	wire VGA_VSYNC // Return inicio VGA 
+	wire VGA_RED, VGA_GREEN, VGA_BLUE;  // Colores VGA
+    wire VGA_HSYNC; // Cambio de fila VGA
+	wire VGA_VSYNC; // Return inicio VGA 
 	wire [3:0] SF_DATA; // Datos para LCD
 
 	// Instantiate the Unit Under Test (UUT)
@@ -52,7 +52,7 @@ module TestBench;
 		.BTN_SOUTH(BTN_SOUTH),
 		.BTN_WEST(BTN_WEST),
 		.ROT_CENTER(ROT_CENTER),
-		.ROT_A(ROT_A)
+		.ROT_A(ROT_A),
 		.ROT_B(ROT_B),
 		.VGA_RED(VGA_RED), 
 		.VGA_GREEN(VGA_GREEN),

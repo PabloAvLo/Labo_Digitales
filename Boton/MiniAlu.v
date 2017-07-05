@@ -23,10 +23,10 @@ module MiniAlu
  output wire LCD_RS, // LCD 
  output wire LCD_RW, // LCD
  output wire [3:0] SF_DATA, // Datos para LCD
- output wire [7:0] oLed, //LEDs
- output wire [4:0] oBTN //Boton presionado
+ output wire [7:0] oLed //LEDs
  
 );
+
 
 wire [15:0] wIP,wIP_temp; //Wires de 16 bits para Dirección
 reg         rWriteEnable,rBranchTaken; //Registros de 1 bit
@@ -207,11 +207,14 @@ LCD display (
 );
 	
 //Instancia de lectura de los botones
-BTN BTN_CHECK (
+
+wire [4:0] oBTN; //Boton presionado
+
+Button BTN_CHECK (
 	.BTN_UP(BTN_NORTH),
 	.BTN_DOWN(BTN_SOUTH),
-	.BTN_LEFT(BTN_EAST),
-	.BTN_RIGHT(BTN_WEST),
+	.BTN_LEFT(BTN_WEST),
+	.BTN_RIGHT(BTN_EAST),
 	.BTN_CNTR(ROT_CENTER),
 	.CLK(Clock),
 	.Reset(Reset),
@@ -225,7 +228,8 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FF_LEDS
 	.Clock(Clock),
 	.Reset(Reset),
 	.Enable( rFFLedEN ),
-	.D( wSourceData1 ),
+	.D( oBTN ),
+	//.D( wSourceData1 ),
 	.Q( oLed    )
 );
 
@@ -347,8 +351,8 @@ begin
 		rFFLedEN     <= 1'b0;
 		rWriteEnable <= 1'b0;
 		rBranchTaken <= 1'b0;
-		rResult      <= {11'b0,oBTN}; //Pasa botón presionado
-		rVGAWriteEnable <= 1'b1;
+		rResult     <= wSourceData1 + oBTN; //Pasa botón presionado
+		rVGAWriteEnable <= 1'b0;
 		rRetCall <= 1'b0;
 	end
 	//-------------------------------------
@@ -358,7 +362,7 @@ begin
 		rWriteEnable <= 1'b0;
 		rResult      <= 16'b0;
 		rBranchTaken <= 1'b0;
-		rVGAWriteEnable <= 1'b1;
+		rVGAWriteEnable <= 1'b0;
 		rRetCall <= 1'b0;
 	end
 	//-------------------------------------
