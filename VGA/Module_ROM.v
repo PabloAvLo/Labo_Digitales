@@ -168,9 +168,10 @@ begin
 	66: oInstruction = { `STO ,`R7, 16'd0 };	
 	67: oInstruction = { `INC, `R6, `R6, 8'd0 };
 	68: oInstruction = { `BLE, `SALTO_13, `R6, `R5 };
+	69: oInstruction = { `STO ,`R6, 16'd0 };
 
 	//quedese ahi
-	69: oInstruction = { `JMP, 8'd69, 16'b0 };
+	70: oInstruction = { `JMP, 8'd6, 16'b0 };
 	
 	default:
 		oInstruction = { `NOP ,24'd4000       };		//NOP
