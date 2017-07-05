@@ -11,7 +11,7 @@ module CELDA_TOPO(
 	wire TOPO;
 	wire SELECTED;
 	wire oHIT;
-	assign TOPO = (reset)? 0 : (HIT)? 0: PONER_TOPO;
+	assign TOPO = (reset)? 0 : (SELECTED && TOPO && GOLPE)? 0: PONER_TOPO;
 	assign SELECTED = (reset)? 0 : SELECT;
 
 	// Si no esta seleccionado y no es topo, esta verde. Si no, si esta seleccionado es amarillo y si no esta seleccionado es topo.
