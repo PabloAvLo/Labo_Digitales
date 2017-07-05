@@ -213,7 +213,7 @@ TABLERO_TOPOS tablero (
 					.reset(Reset),
 					.N_CELDA_PONER_TOPO(4'b0000),
 					.N_CELDA_SELECT(4'b1),
-					.PONER_TOPO(1'b0),
+					.PONER_TOPO(1'b1),
 					.SELECT(1'b0),
 					.ENTER(1'b0),
 					.DIR_RGB(),

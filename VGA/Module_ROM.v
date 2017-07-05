@@ -36,7 +36,6 @@ module ROM
 	input wire [7:0]		iRGB,
 	input  wire[15:0]  		iAddress,
 	output reg [27:0] 		oInstruction
-	output reg [3:0]    	oN_CELDA
 );
 	
 always @ ( iAddress )
@@ -92,7 +91,7 @@ begin
 	29: oInstruction = { `BLE, `SALTO_6, `R7, `R2 };	//salta a la instruccion 5
 
 	// Salto_7
-	30: oInstruction = {`VGA ,`COLOR_RED, `R7, `R6 };
+	30: oInstruction = {`VGA ,iRGB, `R7, `R6 };
 	31: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	32: oInstruction = { `BLE, `SALTO_7, `R7, `R3 };	//salta a la instruccion 5
 
@@ -117,7 +116,7 @@ begin
 	44: oInstruction = { `BLE, `SALTO_10, `R7, `R2 };	//salta a la instruccion 5
 
 	// Salto_11
-	45: oInstruction = {`VGA ,iRGB, `R7, `R6 };
+	45: oInstruction = {`VGA ,`COLOR_WHITE, `R7, `R6 };
 	46: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	47: oInstruction = { `BLE, `SALTO_11, `R7, `R3 };	//salta a la instruccion 5
 
@@ -156,7 +155,7 @@ begin
 	68: oInstruction = { `BLE, `SALTO_13, `R6, `R5 };
 
 	//quedese ahi
-	69: oInstruction = { `JMP, 8'd9, 16'b0 };
+	69: oInstruction = { `JMP, 8'd69, 16'b0 };
 
 
 
@@ -173,7 +172,7 @@ begin
 	
 	// //---------------PRIMERA FILA---------------
 	// // Salto_1
-	// 9: oInstruction = { `VGA ,iRGB, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
+	// 9: oInstruction = { `VGA ,`COLOR_WHITE, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
 	// 10: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	// 11: oInstruction = { `BLE, `SALTO_1, `R7, `R1 };	//salta a la instruccion 5
 
