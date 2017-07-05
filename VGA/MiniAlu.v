@@ -1,15 +1,30 @@
 `timescale 1ns / 1ps
 `include "Defintions.v"
+`include "TABLERO_TOPOS.v"
 
 module MiniAlu
 (
+// Inputs
  input wire Clock,
  input wire Reset,
- input wire PS2_CLK,
- input wire PS2_DATA,
- output wire VGA_RED, VGA_GREEN, VGA_BLUE, 
- output wire VGA_HSYNC,
- output wire VGA_VSYNC
+ input wire BTN_EAST, // Moverse Iquierda
+ input wire BTN_NORTH, // Moverse Arriba
+ input wire BTN_SOUTH, // Moverse Abajo
+ input wire BTN_WEST, // Moverse Derecha
+ input wire ROT_CENTER, // Seleccionador
+ input wire ROT_A, // Girar sentido Horario
+ input wire ROT_B, // Girar sentido Anti Horario
+
+// Outputs
+ output wire VGA_RED, VGA_GREEN, VGA_BLUE,  // Colores VGA
+ output wire VGA_HSYNC, // Cambio de fila VGA
+ output wire VGA_VSYNC, // Return inicio VGA 
+ 
+ output wire LCD_E, // LCD Enable
+ output wire LCD_RS, // LCD 
+ output wire LCD_RW, // LCD
+ output wire [3:0] SF_DATA // Datos para LCD
+ 
 );
 
 wire [15:0] wIP,wIP_temp; //Wires de 16 bits para Dirección
@@ -31,8 +46,7 @@ reg rRetCall;
 reg [7:0] rDirectionBuffer;
 wire [7:0] wRetCall;
 wire [7:0] wXRedCounter, wYRedCounter;
-wire [7:0] keyRead;
-wire [3:0] ColorChange;
+wire [3:0] HolyCow;
 
 // Definición del clock de 25 MHz
 wire Clock_lento; // Clock con frecuencia de 25 MHz
@@ -67,6 +81,8 @@ UPCOUNTER_POSEDGE # ( 1 ) Slow_clock
 // Fin de la implementación del reloj lento 
 
 // Instancia del controlador de VGA
+
+
 VGA_controller VGA_controlador
 (
 	.Clock_lento(Clock_lento),
@@ -74,57 +90,19 @@ VGA_controller VGA_controlador
 	.iXRedCounter(wXRedCounter),
 	.iYRedCounter(wYRedCounter),
 	.iVGA_RGB({wVGA_R,wVGA_G,wVGA_B}),
-	.iColorCuadro(ColorChange),
+	.iColorCuadro(HolyCow),
 	.oVGA_RGB({VGA_RED, VGA_GREEN, VGA_BLUE}),
 	.oHsync(VGA_HSYNC),
 	.oVsync(VGA_VSYNC),
 	.oVcounter(wV_counter),
 	.oHcounter(wH_counter)
 );
-/*
-reg [7:0] Filter;
-reg FClock;
-always @ (posedge Clock_lento) begin
-	Filter <= {PS2_CLK, Filter[7:1]};
-	if (Filter == 8'hFF) FClock = 1'b1;
-	if (Filter == 8'd0) FClock = 1'b0;
-end
 
-reg [7:0] FilterData;
-reg FData;
-always @ (posedge Clock_lento) begin
-	FilterData <= {PS2_DATA, FilterData[7:1]};
-	if (FilterData == 8'hFF) FData = 1'b1;
-	if (FilterData == 8'd0) FData = 1'b0;
-end
-*/
-//EXPERIMENTO 4 TECLADO
-
-<<<<<<< HEAD
-teclado tecladito( 
-	.DATA(PS2_DATA), 
-	.CLOCK(PS2_CLK), 
-	.Reset(Reset), 
-	.tecla(keyRead) 
-/* .ColorReg(ColorChange),
-	.XRedCounter(wXRedCounter),
-	.YRedCounter(wYRedCounter) */);
-
-=======
-
-// PS2_Controller PS2_Controller
-// (
-// 	.Reset(Reset),
-// 	.PS2_CLK(FClock),
-// 	.PS2_DATA(FData),
-// 	.ColorReg(HolyCow),
-// 	.XRedCounter(wXRedCounter),
-// 	.YRedCounter(wYRedCounter)
-// );
->>>>>>> bec53a151702b95d11ad79e6034131d9af22454c
+wire [7:0] wRGB;
 
 ROM InstructionRom 
 (
+	.iRGB(wRGB),
 	.iAddress(     wIP          ),	
 	.oInstruction( wInstruction )
 );
@@ -144,7 +122,7 @@ RAM_DUAL_READ_PORT # (16, 3, 8) DataRam
 
 
 assign wH_read = (wH_counter >= 242 && wH_counter <= 498) ? (wH_counter - 240) : 8'd0;
-assign wV_read = (wV_counter >= 142 && wV_counter <= 398) ? (wV_counter - 142) : 8'd0;
+assign wV_read = (wV_counter >= 141 && wV_counter <= 397) ? (wV_counter - 141) : 8'd0;
 // Memoria ram para video
 RAM_SINGLE_READ_PORT # (3,16,65535) VideoMemory
 (
@@ -212,6 +190,36 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD4 //FFs de Destino
 );
 
 assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
+
+
+reg [256:0] 	chars = "Atrapa al Topo                  ";
+reg [256:0] 	charsTemp = "Puntaje:                        ";
+
+//chars tiene que ser de 32 caracteres 
+LCD display (
+	.clk(Clock), 
+	.chars(chars), 
+	.lcd_rs(LCD_RS),
+	.lcd_rw(LCD_RW), 
+	.lcd_e(LCD_E), 
+	.lcd_4(SF_DATA[0]), 
+	.lcd_5(SF_DATA[1]),
+	.lcd_6(SF_DATA[2]), 
+	.lcd_7(SF_DATA[3])
+);
+
+
+TABLERO_TOPOS tablero (
+					.reset(Reset),
+					.N_CELDA_PONER_TOPO(4'b0000),
+					.N_CELDA_SELECT(4'b1),
+					.PONER_TOPO(1'b0),
+					.SELECT(1'b0),
+					.ENTER(1'b0),
+					.DIR_RGB(),
+					.HIT(),
+					.oRGB(wRGB)
+					);
 	
 always @ ( * )
 begin
@@ -314,18 +322,6 @@ begin
 		rVGAWriteEnable <= 1'b1;
 		rRetCall <= 1'b0;
 	end
-	
-	//-------------------------------------
-	//Ejercicio 4.2: Definicion
-	//-------------------------------------
-	`KEY:
-	begin
-		rFFLedEN     <= 1'b0;
-		rBranchTaken <= 1'b0;
-		rWriteEnable <= 1'b1;
-		rResult <= keyRead;
-	end
-	
 	//-------------------------------------
 	default:
 	begin
