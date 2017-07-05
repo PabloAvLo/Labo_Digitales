@@ -33,7 +33,22 @@
 
 module ROM
 (
-	input wire [7:0]		iRGB,
+	input wire [7:0]		iRGB0,
+	input wire [7:0]		iRGB1,
+	input wire [7:0]		iRGB2,
+	input wire [7:0]		iRGB3,
+	input wire [7:0]		iRGB4,
+	input wire [7:0]		iRGB5,
+	input wire [7:0]		iRGB6,
+	input wire [7:0]		iRGB7,
+	input wire [7:0]		iRGB8,
+	input wire [7:0]		iRGB9,
+	input wire [7:0]		iRGB10,
+	input wire [7:0]		iRGB11,
+	input wire [7:0]		iRGB12,
+	input wire [7:0]		iRGB13,
+	input wire [7:0]		iRGB14,
+	input wire [7:0]		iRGB15,
 	input  wire[15:0]  		iAddress,
 	output reg [27:0] 		oInstruction
 );
@@ -55,22 +70,22 @@ begin
 
 	//---------------PRIMERA FILA---------------
 	// Salto_1
-	9: oInstruction = { `VGA ,`COLOR_WHITE, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
+	9: oInstruction = { `VGA ,iRGB0, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
 	10: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	11: oInstruction = { `BLE, `SALTO_1, `R7, `R1 };	//salta a la instruccion 5
 
 	// Salto_2
-	12: oInstruction = {`VGA ,`COLOR_RED, `R7, `R6 };
+	12: oInstruction = {`VGA ,iRGB1, `R7, `R6 };
 	13: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	14: oInstruction = { `BLE, `SALTO_2, `R7, `R2 };	//salta a la instruccion 5
 
 	// Salto_3
-	15: oInstruction = {`VGA ,`COLOR_WHITE, `R7, `R6 };
+	15: oInstruction = {`VGA ,iRGB2, `R7, `R6 };
 	16: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	17: oInstruction = { `BLE, `SALTO_3, `R7, `R3 };	//salta a la instruccion 5
 
 	// Salto_4
-	18: oInstruction = {`VGA ,`COLOR_RED, `R7, `R6 };
+	18: oInstruction = {`VGA ,iRGB3, `R7, `R6 };
 	19: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	20: oInstruction = { `BLE, `SALTO_4, `R7, `R5 };	//salta a la instruccion 5
 
@@ -81,22 +96,22 @@ begin
 
 //---------------SEGUNDA FILA---------------
 	// Salto_5
-	24: oInstruction = { `VGA ,`COLOR_RED, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
+	24: oInstruction = { `VGA ,iRGB4, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
 	25: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	26: oInstruction = { `BLE, `SALTO_5, `R7, `R1 };	//salta a la instruccion 5
 
 	// Salto_6
-	27: oInstruction = {`VGA ,`COLOR_WHITE, `R7, `R6 };
+	27: oInstruction = {`VGA ,iRGB5, `R7, `R6 };
 	28: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	29: oInstruction = { `BLE, `SALTO_6, `R7, `R2 };	//salta a la instruccion 5
 
 	// Salto_7
-	30: oInstruction = {`VGA ,iRGB, `R7, `R6 };
+	30: oInstruction = {`VGA ,iRGB6, `R7, `R6 };
 	31: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	32: oInstruction = { `BLE, `SALTO_7, `R7, `R3 };	//salta a la instruccion 5
 
 	// Salto_8
-	33: oInstruction = {`VGA ,`COLOR_WHITE, `R7, `R6 };
+	33: oInstruction = {`VGA ,iRGB7, `R7, `R6 };
 	34: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	35: oInstruction = { `BLE, `SALTO_8, `R7, `R5 };	//salta a la instruccion 5
 
@@ -106,22 +121,22 @@ begin
 
 	//---------------TERCERA FILA---------------
 	// Salto_9
-	39: oInstruction = { `VGA ,`COLOR_WHITE, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
+	39: oInstruction = { `VGA ,iRGB8, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
 	40: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	41: oInstruction = { `BLE, `SALTO_9, `R7, `R1 };	//salta a la instruccion 5
 
 	// Salto_10
-	42: oInstruction = {`VGA ,`COLOR_RED, `R7, `R6 };
+	42: oInstruction = {`VGA ,iRGB9, `R7, `R6 };
 	43: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	44: oInstruction = { `BLE, `SALTO_10, `R7, `R2 };	//salta a la instruccion 5
 
 	// Salto_11
-	45: oInstruction = {`VGA ,`COLOR_WHITE, `R7, `R6 };
+	45: oInstruction = {`VGA ,iRGB10, `R7, `R6 };
 	46: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	47: oInstruction = { `BLE, `SALTO_11, `R7, `R3 };	//salta a la instruccion 5
 
 	// Salto_12
-	48: oInstruction = {`VGA ,`COLOR_RED, `R7, `R6 };
+	48: oInstruction = {`VGA ,iRGB11, `R7, `R6 };
 	49: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	50: oInstruction = { `BLE, `SALTO_12, `R7, `R5 };	//salta a la instruccion 5
 
@@ -131,22 +146,22 @@ begin
 
 //---------------CUARTA FILA---------------
 	// Salto_13
-	54: oInstruction = { `VGA ,`COLOR_RED, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
+	54: oInstruction = { `VGA ,iRGB12, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
 	55: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	56: oInstruction = { `BLE, `SALTO_13, `R7, `R1 };	//salta a la instruccion 5
 
 	// Salto_14
-	57: oInstruction = {`VGA ,`COLOR_WHITE, `R7, `R6 };
+	57: oInstruction = {`VGA ,iRGB13, `R7, `R6 };
 	58: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	59: oInstruction = { `BLE, `SALTO_14, `R7, `R2 };	//salta a la instruccion 5
 
 	// Salto_15
-	60: oInstruction = {`VGA ,`COLOR_RED, `R7, `R6 };
+	60: oInstruction = {`VGA ,iRGB14, `R7, `R6 };
 	61: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	62: oInstruction = { `BLE, `SALTO_15, `R7, `R3 };	//salta a la instruccion 5
 
 	// Salto_16
-	63: oInstruction = {`VGA ,`COLOR_WHITE, `R7, `R6 };
+	63: oInstruction = {`VGA ,iRGB15, `R7, `R6 };
 	64: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	65: oInstruction = { `BLE, `SALTO_16, `R7, `R5 };	//salta a la instruccion 5
 
@@ -156,85 +171,6 @@ begin
 
 	//quedese ahi
 	69: oInstruction = { `JMP, 8'd69, 16'b0 };
-
-
-
-	// 0: oInstruction = { `NOP ,24'd2000       }; 
-	// 1: oInstruction = { `STO ,`R1, 16'd63 };	//R4 => cantidad filas
-	// 2: oInstruction = { `STO ,`R2, 16'd127 };	//R4 => cantidad filas
-	// 3: oInstruction = { `STO ,`R3, 16'd191 };	//R4 => cantidad filas
-	// 4: oInstruction = { `STO ,`R4, 16'd63 };	//R4 => cantidad filas
-	// 5: oInstruction = { `STO ,`R5, 16'd255 };	//R5 => cantidad columnas
-
-	// 6: oInstruction = { `STO ,`R7, 16'd0 };	//R7 => Fil 	Registros en donde se elige donde escribir en RAM, y la posición en pantalla.
-	// 7: oInstruction = { `STO ,`R6, 16'd0 };	//R8 => Col
-	// 8: oInstruction = { `STO ,`R0, 16'd255 };	//R5 => cantidad columnas
-	
-	// //---------------PRIMERA FILA---------------
-	// // Salto_1
-	// 9: oInstruction = { `VGA ,`COLOR_WHITE, `R7, `R6  }; //pasa direccion 0 a la RAM para guardar color azul
-	// 10: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
-	// 11: oInstruction = { `BLE, `SALTO_1, `R7, `R1 };	//salta a la instruccion 5
-
-	// // Salto_5
-	// 12: oInstruction = {`VGA ,`COLOR_RED, `R7, `R6 };
-	// 13: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
-	// 14: oInstruction = { `BLE, `SALTO_5, `R7, `R2 };	//salta a la instruccion 5
-
-	// // Salto_6
-	// 15: oInstruction = {`VGA ,`COLOR_WHITE, `R7, `R6 };
-	// 16: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
-	// 17: oInstruction = { `BLE, `SALTO_6, `R7, `R3 };	//salta a la instruccion 5
-
-	// // Salto_7
-	// 18: oInstruction = {`VGA ,`COLOR_RED, `R7, `R6 };
-	// 19: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
-	// 20: oInstruction = { `BLE, `SALTO_7, `R7, `R5 };	//salta a la instruccion 5
-
-	// 21: oInstruction = { `STO ,`R7, 16'd0 };	
-	// 22: oInstruction = { `INC, `R6, `R6, 8'd0 };
-	// 23: oInstruction = { `BLE, `SALTO_1, `R6, `R4 };
-
-	// //repetir
-	// 40: oInstruction = { `STO ,`R4, 16'd191 };
-	// 41: oInstruction = { `STO ,`R6, 16'd127 };
-	// 42: oInstruction = { `BLE, `SALTO_1, `R6, `R3 };
-
-	// 47: oInstruction = { `STO ,`R6, 16'd63 };
-
-	// //---------------SEGUNDA FILA---------------
-
-	// // Salto_2
-	// 25: oInstruction = { `VGA ,`COLOR_RED, `R7, `R6  };
-	// 26: oInstruction = { `INC, `R7, `R7, 8'd0 };
-	// 27: oInstruction = { `BLE, `SALTO_2, `R7, `R1 };
-
-	// // Salto_8
-	// 28: oInstruction = {`VGA ,`COLOR_WHITE, `R7, `R6 };
-	// 29: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
-	// 30: oInstruction = { `BLE, `SALTO_8, `R7, `R2 };	//salta a la instruccion 5
-
-	// // Salto_9
-	// 31: oInstruction = {`VGA ,`COLOR_RED, `R7, `R6 };
-	// 32: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
-	// 33: oInstruction = { `BLE, `SALTO_9, `R7, `R3 };	//salta a la instruccion 5
-
-	// // Salto_10
-	// 34: oInstruction = {`VGA ,`COLOR_WHITE, `R7, `R6 };
-	// 35: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
-	// 36: oInstruction = { `BLE, `SALTO_10, `R7, `R5 };	//salta a la instruccion 5
-
-	// 37: oInstruction = { `STO ,`R7, 16'd0 };	
-	// 38: oInstruction = { `INC, `R6, `R6, 8'd0 };
-	// 39: oInstruction = { `BLE, `SALTO_2, `R6, `R0  };	
-
-	// //repetir
-	// 43: oInstruction = { `STO ,`R0, 16'd127 };
-	// 44: oInstruction = { `STO ,`R6, 16'd63 };
-	// 45: oInstruction = { `BLE, `SALTO_2, `R6, `R2 };
-
-	// //quedese ahi
-	// 46: oInstruction = { `JMP, 8'd46, 16'b0 };
 	
 	default:
 		oInstruction = { `NOP ,24'd4000       };		//NOP
