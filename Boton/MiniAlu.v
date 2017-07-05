@@ -221,6 +221,7 @@ Knob FrecCtrl (
 
 reg [7:0] 		digito1;
 reg [7:0] 		digito2;
+reg [7:0]		nivel;
 reg [256:0]	chars;
 reg Edge;
 
@@ -231,9 +232,11 @@ begin
 		digito1 <= 8'b00110000;
 		digito2 <= 8'b00110000;
 		Edge <= 0;
+		nivel <= 8'b00110000;
 	end
 	
 	else begin
+		//Logica Botones
 		if ((oBTN[0] == 1) && (Edge == 0))begin
 			if(digito1 <48 || digito1 >56) begin
 				digito1 <= 8'b00110000;
@@ -250,7 +253,20 @@ begin
 				digito1 <= digito1 + 1;
 			end
 		end
-		chars <= { "Atrapa al Topo!!  Puntaje: ", digito2, digito1, "   " };
+		//Logica Knob
+		if (KNOB[1]) begin
+			if (KNOB[0]) begin
+				if (nivel > 49) begin
+					nivel <= nivel - 1;
+				end
+			end //Izquierda
+			else begin
+				if (nivel <= 52) begin
+					nivel <= nivel + 1;
+				end
+			end //derecha
+		end
+		chars <= { "Atrapa al Topo!!Score: ", digito2, digito1, " Lvl: ", nivel };
 		Edge <= oBTN[0];
 	end	
 end
@@ -275,8 +291,8 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FF_LEDS
 	.Clock(Clock),
 	.Reset(Reset),
 	.Enable( rFFLedEN ),
-	.D( KNOB ),
-	//.D( oBTN ),
+	//.D( KNOB ),
+	.D( oBTN ),
 	//.D( wSourceData1 ),
 	.Q( oLed    )
 );
