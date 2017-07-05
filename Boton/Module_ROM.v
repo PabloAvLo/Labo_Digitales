@@ -23,8 +23,8 @@ begin
 //LOOP2:
 	6: oInstruction = { `LED ,8'b0,`R7,8'b0 };
 	7: oInstruction = { `STO ,`R1,16'h0     }; 	
-	//8: oInstruction = { `STO ,`R2,16'd65000 }; // Originalmente
-	8: oInstruction = { `STO ,`R2,16'd20000 };   // Se reduce el tiempo del loop para desplegar resultado
+//	8: oInstruction = { `STO ,`R2,16'd20000 };   // Se reduce el tiempo del loop para desplegar resultado
+	8: oInstruction = { `STO ,`R2,16'd1000 };   // Se reduce el tiempo del loop para desplegar resultado
 //LOOP1:	
 	9: oInstruction = { `ADD ,`R1,`R1,`R3    }; 
 	10: oInstruction = { `BLE ,`LOOP1,`R1,`R2 }; 
@@ -33,6 +33,7 @@ begin
 	12: oInstruction = { `BLE ,`LOOP2,`R5,`R4 };	
 	13: oInstruction = { `NOP ,24'd4000       }; 
 	14: oInstruction = { `BTN ,`R7, `R7, 8'd0};	//Poner Botón leído en R7
+	//14: oInstruction = { `INC, `R7, `R7, 8'd0 }; //pasa a la siguiente direccion de RAM
 	15: oInstruction = { `JMP ,  8'd2,16'b0   };
 
 	default:
