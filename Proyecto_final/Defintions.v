@@ -14,20 +14,19 @@
 `define COLOR_WHITE 8'b00000111
 
 // Se pueden implementar 16 instrucciones máximo
-`define NOP   4'd0  
-`define STO   4'd1
-`define INC   4'd2 //Destination = Source + 1
-`define VGA   4'd3
-`define BGE   4'd4
-`define JMP   4'd5
-`define BLE   4'd6
-`define ADD	  4'd7
-`define CALL  4'd8
-`define RET	  4'd9
-`define SALTO_1	  4'd10
-`define SALTO_2	  4'd11
-`define SALTO_3	  4'd12
-`define SALTO_4	  4'd13
+`define NOP   	4'd0  
+`define STO   	4'd1
+`define INC   	4'd2 //Destination = Source + 1
+`define VGA   	4'd3
+`define BGE   	4'd4
+`define JMP 	4'd5
+`define BLE 	4'd6
+`define ADD	4'd7
+`define CALL 	4'd8
+`define RET	4'd9
+`define BTN	4'd14
+`define LED		4'd15
+
 
 // Definición de registros en memoria RAM
 `define R0 8'd0

@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 `include "Defintions.v"
+//`include "random_generator.v"
+`include "TABLERO_TOPOS.v"
 
 module MiniAlu
 (
@@ -22,7 +24,8 @@ module MiniAlu
  output wire LCD_E, // LCD Enable
  output wire LCD_RS, // LCD 
  output wire LCD_RW, // LCD
- output wire [3:0] SF_DATA // Datos para LCD
+ output wire [3:0] SF_DATA, // Datos para LCD
+ output wire [7:0] oLed //LEDs
  
 );
 
@@ -80,6 +83,8 @@ UPCOUNTER_POSEDGE # ( 1 ) Slow_clock
 // Fin de la implementación del reloj lento 
 
 // Instancia del controlador de VGA
+
+
 VGA_controller VGA_controlador
 (
 	.Clock_lento(Clock_lento),
@@ -95,9 +100,41 @@ VGA_controller VGA_controlador
 	.oHcounter(wH_counter)
 );
 
+wire [7:0] wRGB0;
+wire [7:0] wRGB1;
+wire [7:0] wRGB2;
+wire [7:0] wRGB3;
+wire [7:0] wRGB4;
+wire [7:0] wRGB5;
+wire [7:0] wRGB6;
+wire [7:0] wRGB7;
+wire [7:0] wRGB8;
+wire [7:0] wRGB9;
+wire [7:0] wRGB10;
+wire [7:0] wRGB11;
+wire [7:0] wRGB12;
+wire [7:0] wRGB13;
+wire [7:0] wRGB14;
+wire [7:0] wRGB15;
 
 ROM InstructionRom 
 (
+	.iRGB0(wRGB0),
+	.iRGB1(wRGB1),
+	.iRGB2(wRGB2),
+	.iRGB3(wRGB3),
+	.iRGB4(wRGB4),
+	.iRGB5(wRGB5),
+	.iRGB6(wRGB6),
+	.iRGB7(wRGB7),
+	.iRGB8(wRGB8),
+	.iRGB9(wRGB9),
+	.iRGB10(wRGB10),
+	.iRGB11(wRGB11),
+	.iRGB12(wRGB12),
+	.iRGB13(wRGB13),
+	.iRGB14(wRGB14),
+	.iRGB15(wRGB15),
 	.iAddress(     wIP          ),	
 	.oInstruction( wInstruction )
 );
@@ -116,7 +153,7 @@ RAM_DUAL_READ_PORT # (16, 3, 8) DataRam
 );
 
 
-assign wH_read = (wH_counter >= 242 && wH_counter <= 498) ? (wH_counter - 240) : 8'd0;
+assign wH_read = (wH_counter >= 242 && wH_counter <= 496) ? (wH_counter - 240) : 8'd0;
 assign wV_read = (wV_counter >= 141 && wV_counter <= 397) ? (wV_counter - 141) : 8'd0;
 // Memoria ram para video
 RAM_SINGLE_READ_PORT # (3,16,65535) VideoMemory
@@ -186,11 +223,140 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD4 //FFs de Destino
 
 assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
 
+wire [4:0] oBTN; //Boton presionado
+wire [3:0] wSelect;
+wire wEnter;
 
-reg [256:0] 	chars = "Atrapa al Topo                  ";
-reg [256:0] 	charsTemp = "Puntaje:                        ";
+SELECT_LOGIC seleccionador_logica (
+	.reset(Reset),
+	.CLK(Clock),
+	.BTN(oBTN), // {BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RGHT, BTN_CNTR}
+	.N_CELDA_SELECT(wSelect),
+	.ENTER(wEnter)
+	);
 
-//chars tiene que ser de 32 caracteres 
+
+wire [3:0] rand_number; 
+wire wHit;
+reg [7:0]		nivel;
+
+random_generator randy (.CLK(Clock), .nivel(nivel[2:0]), .reset(Reset), .rand(rand_number));
+
+TABLERO_TOPOS tablero (
+					.reset(Reset),
+					.N_CELDA_PONER_TOPO(rand_number),
+					.N_CELDA_SELECT(wSelect),
+					.PONER_TOPO(1'b1),
+					.SELECT(1'b1),
+					.ENTER(wEnter),
+					//.DIR_RGB(),
+					.HIT(wHit),
+					.oRGB0(wRGB0),
+					.oRGB1(wRGB1),
+					.oRGB2(wRGB2),
+					.oRGB3(wRGB3),
+					.oRGB4(wRGB4),
+					.oRGB5(wRGB5),
+					.oRGB6(wRGB6),
+					.oRGB7(wRGB7),
+					.oRGB8(wRGB8),
+					.oRGB9(wRGB9),
+					.oRGB10(wRGB10),
+					.oRGB11(wRGB11),
+					.oRGB12(wRGB12),
+					.oRGB13(wRGB13),
+					.oRGB14(wRGB14),
+					.oRGB15(wRGB15)
+					);
+
+//************ Lectura Botones *******************
+
+Button BTN_CHECK (
+	.BTN_UP(BTN_NORTH),
+	.BTN_DOWN(BTN_SOUTH),
+	.BTN_LEFT(BTN_WEST),
+	.BTN_RIGHT(BTN_EAST),
+	.BTN_CNTR(ROT_CENTER),
+	.CLK(Clock),
+	.Reset(Reset),
+	.BTN(oBTN)
+);
+
+//************ Knob *******************
+
+wire [1:0] KNOB; //Giro Boton 
+// Bit 1: 1 = Giro, 0 = No Giro 
+// Bit 0: 1 = Left, 0 = Rigth
+
+Knob FrecCtrl (
+	.Reset(Reset),
+	.ROT( {ROT_A, ROT_B} ),
+	.CLK(Clock),
+	.oKnob(KNOB)
+	);
+
+//************** LCD Logica ********************
+
+reg [7:0] 		digito1;
+reg [7:0] 		digito2;
+reg [256:0]	chars;
+reg Edge;
+reg [32:0] counterPuntaje;
+
+always @ (posedge Clock)
+begin
+	if(Reset) begin
+		chars <= "Atrapa al Topo                  ";
+		digito1 <= 8'b00110000;
+		digito2 <= 8'b00110000;
+		Edge <= 0;
+		nivel <= 8'b00110000;
+		counterPuntaje <= 0;
+	end
+	
+	else begin
+		counterPuntaje <= counterPuntaje + 1;
+		//Logica Botones
+		if ((wHit == 1) && (Edge == 0) && (counterPuntaje >= 60000000))begin
+			counterPuntaje <= 0;
+			if(digito1 <48 || digito1 >56) begin
+				digito1 <= 8'b00110000;
+				
+				if(digito2 <48 || digito2 >56) begin
+					digito2 <= 8'b00110000;
+				end
+				else begin
+					digito2 <= digito2 +1;
+				end
+			end	
+				
+			else begin 
+				digito1 <= digito1 + 1;
+			end
+		end
+		else begin
+			digito1 <= digito1;
+			digito2 <= digito2;
+		end
+		//Logica Knob
+		if (KNOB[1]) begin
+			if (KNOB[0]) begin
+				if (nivel > 49) begin
+					nivel <= nivel - 1;
+				end
+			end //Izquierda
+			else begin
+				if (nivel <= 52) begin
+					nivel <= nivel + 1;
+				end
+			end //derecha
+		end
+		chars <= { "Atrapa al Topo!!Score: ", digito2, digito1, " Lvl: ", nivel };
+		Edge <= wHit;
+	end	
+end
+
+//****************** LCD  ********************
 LCD display (
 	.clk(Clock), 
 	.chars(chars), 
@@ -201,6 +367,19 @@ LCD display (
 	.lcd_5(SF_DATA[1]),
 	.lcd_6(SF_DATA[2]), 
 	.lcd_7(SF_DATA[3])
+);
+	
+//LEDs
+reg rFFLedEN;
+FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FF_LEDS
+(
+	.Clock(Clock),
+	.Reset(Reset),
+	.Enable( rFFLedEN ),
+	//.D( KNOB ),
+	.D( oBTN ),
+	//.D( wSourceData1 ),
+	.Q( oLed    )
 );
 	
 always @ ( * )
@@ -286,7 +465,7 @@ begin
 		rRetCall <= 1'b0;
 	end
 	//--------------------------------------
-		`RET:		//Nuevo
+	`RET:		//Nuevo
 	begin
 		rVGAWriteEnable <= 1'b0;
 		rWriteEnable <= 1'b0;
@@ -302,6 +481,27 @@ begin
 		rBranchTaken <= 1'b0;
 		rResult      <= 16'b0;
 		rVGAWriteEnable <= 1'b1;
+		rRetCall <= 1'b0;
+	end
+		//-------------------------------------
+	// Instrucción para escribir pixel a una posición específica	
+	`BTN:
+	begin
+		rFFLedEN     <= 1'b0;
+		rWriteEnable <= 1'b1;
+		rBranchTaken <= 1'b0;
+		rResult     <= wSourceData1 + oBTN; //Pasa botón presionado
+		rVGAWriteEnable <= 1'b0;
+		rRetCall <= 1'b0;
+	end 
+	//-------------------------------------
+	`LED:
+	begin
+		rFFLedEN     <= 1'b1;
+		rWriteEnable <= 1'b0;
+		rResult      <= 16'b0;
+		rBranchTaken <= 1'b0;
+		rVGAWriteEnable <= 1'b0;
 		rRetCall <= 1'b0;
 	end
 	//-------------------------------------
