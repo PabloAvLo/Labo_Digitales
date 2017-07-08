@@ -238,8 +238,9 @@ SELECT_LOGIC seleccionador_logica (
 
 wire [3:0] rand_number; 
 wire wHit;
+reg [7:0]		nivel;
 
-random_generator randy (.CLK(Clock), .reset(Reset), .rand(rand_number));
+random_generator randy (.CLK(Clock), .nivel(nivel[2:0]), .reset(Reset), .rand(rand_number));
 
 TABLERO_TOPOS tablero (
 					.reset(Reset),
@@ -298,7 +299,6 @@ Knob FrecCtrl (
 
 reg [7:0] 		digito1;
 reg [7:0] 		digito2;
-reg [7:0]		nivel;
 reg [256:0]	chars;
 reg Edge;
 

@@ -1,4 +1,4 @@
-module random_generator (CLK, nanos, reset, rand);
+module random_generator (CLK, nanos, nivel, reset, rand);
 
 //outputs declaration
 output reg [27:0] nanos;
@@ -7,10 +7,11 @@ output reg [3:0] rand;
 //inputs declaration
 input wire CLK;
 input wire reset;
+input wire [2:0] nivel;
 
 //variables
 reg [3:0] next_rand;
-reg [31:0] counter_ciclos;
+reg [31:0] counter_ciclos, velocidad;
 reg par;
 
 
@@ -20,6 +21,7 @@ always @(posedge CLK) begin
 		rand <= 0;
 		counter_ciclos <= 0;
 		par <= 0;
+		velocidad <= 25000000;
 	end else begin
 		rand <= next_rand;
 	end
@@ -27,8 +29,16 @@ always @(posedge CLK) begin
 	if (nanos % 16) begin
 		counter_ciclos <= counter_ciclos + 1;
 	end
+	case (nivel) 
+		3'b001:	velocidad <= 110000000;
+		3'b010:	velocidad <= 85000000;
+		3'b011:	velocidad <= 70000000;
+		3'b100:	velocidad <= 45000000;
+		3'b101:	velocidad <= 25000000;
+		default: velocidad <= 110000000;
+	endcase
 
-	if (nanos < 100000000) begin  //268435455
+	if (nanos < velocidad) begin  //100000000
 		nanos <= nanos + 1;
 	end else begin
 		nanos <= 0;
