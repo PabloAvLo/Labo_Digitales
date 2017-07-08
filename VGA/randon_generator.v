@@ -28,7 +28,7 @@ always @(posedge CLK) begin
 		counter_ciclos <= counter_ciclos + 1;
 	end
 
-	if (nanos < 50000000) begin  //268435455
+	if (nanos < 100000000) begin  //268435455
 		nanos <= nanos + 1;
 	end else begin
 		nanos <= 0;

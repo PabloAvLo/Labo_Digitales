@@ -223,20 +223,32 @@ FFD_POSEDGE_SYNCRONOUS_RESET # ( 8 ) FFD4 //FFs de Destino
 
 assign wImmediateValue = {wSourceAddr1,wSourceAddr0};
 
+wire [4:0] oBTN; //Boton presionado
+wire [3:0] wSelect;
+wire wEnter;
+
+SELECT_LOGIC seleccionador_logica (
+	.reset(Reset),
+	.BTN(oBTN), // {BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RGHT, BTN_CNTR}
+	.N_CELDA_SELECT(wSelect),
+	.ENTER(wEnter)
+	);
+
 
 wire [3:0] rand_number; 
+wire wHit;
 
 random_generator randy (.CLK(Clock), .reset(Reset), .rand(rand_number));
 
 TABLERO_TOPOS tablero (
 					.reset(Reset),
 					.N_CELDA_PONER_TOPO(rand_number),
-					.N_CELDA_SELECT(4'b0011),
+					.N_CELDA_SELECT(wSelect),
 					.PONER_TOPO(1'b1),
 					.SELECT(1'b1),
-					.ENTER(1'b0),
+					.ENTER(wEnter),
 					//.DIR_RGB(),
-					.HIT(),
+					.HIT(wHit),
 					.oRGB0(wRGB0),
 					.oRGB1(wRGB1),
 					.oRGB2(wRGB2),
@@ -256,8 +268,6 @@ TABLERO_TOPOS tablero (
 					);
 
 //************ Lectura Botones *******************
-
-wire [4:0] oBTN; //Boton presionado
 
 Button BTN_CHECK (
 	.BTN_UP(BTN_NORTH),
@@ -303,7 +313,7 @@ begin
 	
 	else begin
 		//Logica Botones
-		if ((oBTN[0] == 1) && (Edge == 0))begin
+		if ((wHit == 1) && (Edge == 0))begin
 			if(digito1 <48 || digito1 >56) begin
 				digito1 <= 8'b00110000;
 				
@@ -333,7 +343,7 @@ begin
 			end //derecha
 		end
 		chars <= { "Atrapa al Topo!!Score: ", digito2, digito1, " Lvl: ", nivel };
-		Edge <= oBTN[0];
+		Edge <= wHit;
 	end	
 end
 
