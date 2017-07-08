@@ -15,7 +15,7 @@ module CELDA_TOPO(
 
 	// Si no esta seleccionado y no es topo, esta verde. Si no, si esta seleccionado es amarillo y si no esta seleccionado es topo.
 	assign RGB = (!SELECTED && !TOPO)? 3'b010: (SELECTED && TOPO)? 3'b101: (SELECTED)? 3'b001: 3'b110;
-								    // (GREEN)			  (RED) (YELLO W)
+								    // (GREEN)			  (RED) (YELLO W)													
 	assign HIT = (SELECTED && TOPO && GOLPE)? 1 : 0;
 
 endmodule

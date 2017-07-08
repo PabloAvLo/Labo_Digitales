@@ -301,6 +301,7 @@ reg [7:0] 		digito1;
 reg [7:0] 		digito2;
 reg [256:0]	chars;
 reg Edge;
+reg [32:0] counterPuntaje;
 
 always @ (posedge Clock)
 begin
@@ -310,11 +311,14 @@ begin
 		digito2 <= 8'b00110000;
 		Edge <= 0;
 		nivel <= 8'b00110000;
+		counterPuntaje <= 0;
 	end
 	
 	else begin
+		counterPuntaje <= counterPuntaje + 1;
 		//Logica Botones
-		if ((wHit == 1) && (Edge == 0))begin
+		if ((wHit == 1) && (Edge == 0) && (counterPuntaje >= 30000000))begin
+			counterPuntaje <= 0;
 			if(digito1 <48 || digito1 >56) begin
 				digito1 <= 8'b00110000;
 				
@@ -329,6 +333,10 @@ begin
 			else begin 
 				digito1 <= digito1 + 1;
 			end
+		end
+		else begin
+			digito1 <= digito1;
+			digito2 <= digito2;
 		end
 		//Logica Knob
 		if (KNOB[1]) begin

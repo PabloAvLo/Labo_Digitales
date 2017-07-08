@@ -30,10 +30,10 @@ always @(posedge CLK) begin
 		counter_ciclos <= counter_ciclos + 1;
 	end
 	case (nivel) 
-		3'b001:	velocidad <= 110000000;
-		3'b010:	velocidad <= 85000000;
-		3'b011:	velocidad <= 70000000;
-		3'b100:	velocidad <= 45000000;
+		3'b001:	velocidad <= 125000000;
+		3'b010:	velocidad <= 100000000;
+		3'b011:	velocidad <= 85000000;
+		3'b100:	velocidad <= 50000000;
 		3'b101:	velocidad <= 25000000;
 		default: velocidad <= 110000000;
 	endcase

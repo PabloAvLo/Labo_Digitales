@@ -74,7 +74,7 @@ module TABLERO_TOPOS(
 	wire wS0, wS1,wS2,wS3,wS4,wS5,wS6,wS7,wS8,wS9,wS10,wS11,wS12,wS13,wS14,wS15;
 	wire [2:0] wRGB0, wRGB1, wRGB2, wRGB3, wRGB4, wRGB5, wRGB6, wRGB7, wRGB8, wRGB9, wRGB10, wRGB11, wRGB12, wRGB13, wRGB14, wRGB15;
 
-	assign HIT = oHC0 || oHC1|| oHC2|| oHC3|| oHC4|| oHC5|| oHC6|| oHC7|| oHC8|| oHC9|| oHC10|| oHC11|| oHC12|| oHC13|| oHC14|| oHC15;
+	assign HIT = oHC0 || oHC1 || oHC2 || oHC3 || oHC4 || oHC5 || oHC6 || oHC7 || oHC8 || oHC9 || oHC10 || oHC11 || oHC12 || oHC13 || oHC14 || oHC15;
 
 	assign iPT0  = (N_CELDA_PONER_TOPO == 0  && PONER_TOPO == 1)? 1:0;
 	assign iPT1  = (N_CELDA_PONER_TOPO == 1  && PONER_TOPO == 1)? 1:0;
