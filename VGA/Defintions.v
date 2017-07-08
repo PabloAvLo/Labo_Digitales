@@ -28,6 +28,9 @@
 `define SALTO_2	  4'd11
 `define SALTO_3	  4'd12
 `define SALTO_4	  4'd13
+`define BTN		  4'd14
+`define LED		  4'd15
+
 
 // Definición de registros en memoria RAM
 `define R0 8'd0

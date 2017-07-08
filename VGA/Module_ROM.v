@@ -170,8 +170,10 @@ begin
 	68: oInstruction = { `BLE, `SALTO_13, `R6, `R5 };
 	69: oInstruction = { `STO ,`R6, 16'd0 };
 
+	// 14: oInstruction = { `BTN ,`R7, `R7, 8'd0};	//Poner Botón leído en R7
+	70: oInstruction = { `LED ,8'b0,`R7,8'b0 };
 	//quedese ahi
-	70: oInstruction = { `JMP, 8'd6, 16'b0 };
+	71: oInstruction = { `JMP, 8'd6, 16'b0 };
 	
 	default:
 		oInstruction = { `NOP ,24'd4000       };		//NOP

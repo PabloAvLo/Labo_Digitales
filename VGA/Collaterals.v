@@ -270,3 +270,125 @@ module LCD(
 	end
 
 endmodule
+
+//----------------------------------------------------------------------
+// Module Button
+
+module Button
+(	input wire BTN_UP,
+	input wire BTN_DOWN,
+	input wire BTN_LEFT,
+	input wire BTN_RIGHT,
+	input wire BTN_CNTR,
+	input wire CLK,
+	input wire Reset,
+	output reg [4:0] BTN
+);
+	
+	reg [31:0] rCLKCounter;  //Contador de ciclos del reloj
+	reg [4:0] rBTN; 		//Registro con botón presionado
+	reg [4:0] rBTNTemp;		//Temporal para BTN mientras se suprimen los rebotes
+	
+	//Lógica principal
+	always @ (posedge CLK or posedge Reset) begin
+		rCLKCounter <= rCLKCounter + 1;
+		
+		//Manejo del Reset
+		if (Reset) begin
+			rCLKCounter <= 0;
+			rBTN <= 0;
+			rBTNTemp <= 0;
+			BTN <= 0;
+		end	//end Reset
+				
+		//Control de los Botones
+		else begin 
+			//Verificar que se haya presionado algún botón
+			rBTN <= {BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_CNTR};
+			
+			if (rBTN != 0) begin
+			//if ( BTN_UP || BTN_DOWN || BTN_LEFT || BTN_RIGHT || BTN_CNTR) begin
+				rBTNTemp <= rBTN;
+			end
+			else begin
+				rBTNTemp <= rBTNTemp;
+			end
+			
+			if (rCLKCounter <= 1000) begin
+				rBTNTemp <= rBTNTemp;
+			end
+			else begin
+				rCLKCounter <= 0; //Reset contador de ciclos
+				if (rBTN == rBTNTemp) begin //Sigue pulsado el botón y no va a enviar basura
+					BTN <= rBTN;
+				end
+				else begin //Era basura
+					BTN <= 0;
+				end
+			end	
+		end //end Control Botone
+	end
+endmodule
+
+//----------------------------------------------------------------------
+// Module Knob: Rotary Encoder
+
+module Knob 
+(
+	input wire Reset,
+    input wire [1:0] ROT,
+    input wire CLK,
+    output reg [1:0] oKnob
+);
+
+	reg rotary_A, rotary_B;
+	reg prevA;
+
+	//Filtro
+	always @ (posedge CLK or posedge Reset) begin
+		//Manejo Reset
+		if (Reset) begin
+			rotary_A <= 0;
+			rotary_B <= 0;
+			prevA <= 0;
+			oKnob <= 0;
+		end
+		else begin
+			
+			//Manejo de estados de rotary_A y rotary_B
+			case (ROT)
+				2'b00: begin
+					rotary_A <= 0;
+					rotary_B <= rotary_B;
+				end
+				2'b01: begin
+					rotary_A <= rotary_A;
+					rotary_B <= 0;
+				end
+				2'b10: begin
+					rotary_A <= rotary_A;
+					rotary_B <= 1;
+				end
+				2'b11: begin
+					rotary_A <= 1;
+					rotary_B <= rotary_B;
+				end
+				default: begin
+					rotary_A <= rotary_A;
+					rotary_B <= rotary_B;
+				end
+			endcase
+			
+		prevA <= rotary_A;
+		
+		//Knob se movio
+		if (prevA == 0 && rotary_A == 1) begin
+			oKnob <= {1,rotary_B};
+		end
+		else begin
+			oKnob <= {0,oKnob[0]};
+		end
+
+		end //else Reset
+	end //always filtro
+endmodule
