@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `include "Defintions.v"
+//`include "random_generator.v"
 `include "TABLERO_TOPOS.v"
 
 module MiniAlu
@@ -238,11 +239,14 @@ LCD display (
 	.lcd_7(SF_DATA[3])
 );
 
+wire [3:0] rand_number; 
+
+random_generator randy (.CLK(Clock), .reset(Reset), .rand(rand_number));
 
 TABLERO_TOPOS tablero (
 					.reset(Reset),
-					.N_CELDA_PONER_TOPO(4'b1001),
-					.N_CELDA_SELECT(4'b0000),
+					.N_CELDA_PONER_TOPO(rand_number),
+					.N_CELDA_SELECT(4'b0011),
 					.PONER_TOPO(1'b1),
 					.SELECT(1'b1),
 					.ENTER(1'b0),
