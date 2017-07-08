@@ -386,7 +386,7 @@ module Knob
 			oKnob <= {1,rotary_B};
 		end
 		else begin
-			oKnob <= {1,oKnob[0]};
+			oKnob <= {0,oKnob[0]};
 		end
 
 		end //else Reset
