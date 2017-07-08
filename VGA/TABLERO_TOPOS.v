@@ -2,12 +2,14 @@
 
 module SELECT_LOGIC(
 	input reset,
+	input wire CLK,
 	input [4:0] BTN, // {BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RGHT, BTN_CNTR}
 	output reg [3:0] N_CELDA_SELECT,
 	output wire ENTER
 	);
 
 	wire BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT;
+	reg [4:0] Edge;
 
 	assign BTN_UP = BTN[4];
 	assign BTN_DOWN = BTN[3];
@@ -16,19 +18,22 @@ module SELECT_LOGIC(
 	assign ENTER = (reset)? 0: BTN[0];
 
 
-	always @(*) begin
+	always @(posedge CLK or posedge reset) begin
 
 		if(reset)
 			N_CELDA_SELECT = 0;
 		else begin
-			if(BTN_RIGHT)
-				N_CELDA_SELECT = N_CELDA_SELECT + 1;
-			if(BTN_LEFT)
-				N_CELDA_SELECT = N_CELDA_SELECT - 1;
-			if(BTN_DOWN)
-				N_CELDA_SELECT = N_CELDA_SELECT + 4;
-			if(BTN_UP)
-				N_CELDA_SELECT = N_CELDA_SELECT - 4;
+			if ((BTN >= 1) && (Edge == 0))begin
+				if(BTN_RIGHT)
+					N_CELDA_SELECT = N_CELDA_SELECT + 1;
+				if(BTN_LEFT)
+					N_CELDA_SELECT = N_CELDA_SELECT - 1;
+				if(BTN_DOWN)
+					N_CELDA_SELECT = N_CELDA_SELECT + 4;
+				if(BTN_UP)
+					N_CELDA_SELECT = N_CELDA_SELECT - 4;
+			end
+		Edge = BTN;
 		end
 	end
 

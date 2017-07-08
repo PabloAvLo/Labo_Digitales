@@ -229,6 +229,7 @@ wire wEnter;
 
 SELECT_LOGIC seleccionador_logica (
 	.reset(Reset),
+	.CLK(Clock),
 	.BTN(oBTN), // {BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RGHT, BTN_CNTR}
 	.N_CELDA_SELECT(wSelect),
 	.ENTER(wEnter)
@@ -456,7 +457,7 @@ begin
 		rRetCall <= 1'b0;
 	end
 	//--------------------------------------
-		`RET:		//Nuevo
+	`RET:		//Nuevo
 	begin
 		rVGAWriteEnable <= 1'b0;
 		rWriteEnable <= 1'b0;

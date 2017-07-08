@@ -10,7 +10,6 @@ module CELDA_TOPO(
 
 	wire TOPO;
 	wire SELECTED;
-	wire oHIT;
 	assign TOPO = (reset)? 0 : (SELECTED && TOPO && GOLPE)? 0: PONER_TOPO;
 	assign SELECTED = (reset)? 0 : SELECT;
 
